@@ -56,7 +56,7 @@ cp frontend/.env.example frontend/.env
 
 Configurações obrigatórias:
 ```bash
-NEXT_PUBLIC_API_URL=http://localhost:8000
+API_KEY=http://localhost:8000
 ```
 
 ---
