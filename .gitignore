@@ -1,0 +1,222 @@
+# Byte-compiled / optimized / DLL files
+__pycache__
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+*.mp4
+*.jpg
+*.jpeg
+*.png
+!frontend/public/assets/*.png
+!frontend/public/*.png
+*.pt
+*.json
+
+# database folder
+chroma_db/
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+pip-wheel-metadata/
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff
+instance/
+.webassets-cache
+
+# Scrapy stuff
+.scrapy/
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pipenv
+Pipfile.lock
+
+# poetry
+poetry.lock
+
+# pdm
+pdm.lock
+__pypackages__/
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath
+*.sage.py
+
+# dotenv
+.env
+.envrc
+
+# virtualenv
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# IDEs and editors
+.vscode/
+.idea/
+.spyderproject
+.spyproject
+.ropeproject
+
+# mypy
+.mypy_cache/
+
+# Pyre
+.pyre/
+
+# pytype
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Office temp files
+~$*
+
+# Project-specific (ajuste conforme necessário)
+output/
+tmp/
+temp/
+
+
+#Test data
+tests/data/
+
+#data AI
+AI/data/recordings/
+!AI/data/recordings/testeDeVideoAqui.txt
+AI/data/training_faces/
+!AI/data/training_faces/fotodorostoaqui.txt
+AI/data/utils/*
+!AI/data/utils/points.json
+!AI/data/utils/subject_map.json
+
+# Telemetry + operational-study artifacts (BRACIS 2026 — see docs/BRACIS_2026_PLAN.md)
+AI/data/runs/
+AI/data/passthroughs/
+!AI/data/passthroughs/.gitkeep
+
+# Privacy-sensitive — must never enter the repo under any circumstance.
+# The subject_id → real_name mapping lives only on the advisor's encrypted folder.
+signed_consent_forms/
+**/subject_id_to_real_name.csv
+**/subject_id_to_real_name.json
+insightface-0.7.3-cp310-cp310-win_amd64.whl
+.antigravitycli/
+
+# ONNX models for ERBASE article (heavy, download via article/download_models.py)
+article/data/models/*.onnx
+article/data/models/*.pth
+article/data/models/*.onnx*
+article/data/models/*.pth*
+
+# Temporary replace script
+replace_erbase.py
+
+# -----------------
+# Frontend (Merged)
+# -----------------
+.wrangler
+!package.json
+!package-lock.json
+!jsconfig.json
+!tsconfig.json
+
+logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist-ssr
+*.local
+.next/
+out/
+
+!.vscode/extensions.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?.agents
+
+# Artefatos locais do graphify (grafo de conhecimento gerado sob demanda)
+graphify-out/
