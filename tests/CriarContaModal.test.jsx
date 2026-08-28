@@ -11,24 +11,6 @@ const setupMocks = () => {
         json: async () => ({ id: 101, email: 'novo.aluno@edge.ufal.br', admin: false }),
       });
     }
-    if (urlStr.endsWith('/turmas')) {
-      return Promise.resolve({
-        ok: true,
-        json: async () => [{ id: 1, name: 'Turma 2024.1' }],
-      });
-    }
-    if (urlStr.endsWith('/cargos')) {
-      return Promise.resolve({
-        ok: true,
-        json: async () => [{ id: 1, name: 'Residente' }],
-      });
-    }
-    if (urlStr.endsWith('/cursos')) {
-      return Promise.resolve({
-        ok: true,
-        json: async () => [{ id: 1, name: 'Ciência da Computação' }],
-      });
-    }
     return Promise.resolve({ ok: true, json: async () => [] });
   });
 };
@@ -41,7 +23,7 @@ describe('CriarContaModal Component', () => {
     jest.clearAllMocks();
   });
 
-  it('renderiza o formulário de cadastro de estudante sem opção de administrador', async () => {
+  it('renderiza o formulário de cadastro de estudante sem campos de administrador, turma, cargo e curso', async () => {
     setupMocks();
     await act(async () => {
       render(
@@ -59,10 +41,19 @@ describe('CriarContaModal Component', () => {
     expect(screen.getByPlaceholderText('usuario@edge.ufal.br')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Sua matrícula (somente números)')).toBeInTheDocument();
     expect(screen.getByText('Dados Acadêmicos')).toBeInTheDocument();
+    expect(screen.getByText('Selecione a trilha')).toBeInTheDocument();
 
     // Garante que NÃO existe campo ou toggle de Administrador
     expect(screen.queryByText(/É Admin/i)).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/É Admin/i)).not.toBeInTheDocument();
+
+    // Garante que NÃO existem campos de Turma, Cargo e Curso (restritos ao Administrador)
+    expect(screen.queryByText('Turma')).not.toBeInTheDocument();
+    expect(screen.queryByText('Selecione a turma')).not.toBeInTheDocument();
+    expect(screen.queryByText('Cargo')).not.toBeInTheDocument();
+    expect(screen.queryByText('Selecione o cargo')).not.toBeInTheDocument();
+    expect(screen.queryByText('Curso')).not.toBeInTheDocument();
+    expect(screen.queryByText('Selecione o curso')).not.toBeInTheDocument();
   });
 
   it('valida que o e-mail deve pertencer ao domínio @edge.ufal.br', async () => {
