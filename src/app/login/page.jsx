@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, AlertCircle, CheckCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getApiBase } from '@/config/api';
@@ -14,12 +14,14 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     setErrorMessage('');
+    setSuccessMessage('');
     
     try {
       const response = await fetch(`${getApiBase()}/auth/login`, {
@@ -41,7 +43,7 @@ export default function LoginPage() {
       localStorage.setItem('ponto_ai_user', JSON.stringify(data.user));
       
       // Redirecionamento condicional de primeiro acesso / troca obrigatória de senha
-      if (data.user && (data.user.must_change_password || !data.user.has_logged_in)) {
+      if (data.user && data.user.must_change_password) {
         router.push('/redefinir-senha?first_access=true');
         return;
       }
@@ -51,6 +53,13 @@ export default function LoginPage() {
       setErrorMessage(error.message || 'Falha ao conectar com o servidor.');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleUserCreated = (createdData) => {
+    setIsRegisterModalOpen(false);
+    if (createdData && createdData.access_token) {
+      router.push('/');
     }
   };
 
@@ -65,6 +74,14 @@ export default function LoginPage() {
             Ponto AI
           </h1>
         </div>
+
+        {/* Success Banner */}
+        {successMessage && (
+          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start">
+            <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
+            <p className="text-sm text-green-700">{successMessage}</p>
+          </div>
+        )}
 
         {/* Error Banner */}
         {errorMessage && (
@@ -144,7 +161,11 @@ export default function LoginPage() {
               Ainda não tem uma conta?{' '}
               <button
                 type="button"
-                onClick={() => setIsRegisterModalOpen(true)}
+                onClick={() => {
+                  setSuccessMessage('');
+                  setErrorMessage('');
+                  setIsRegisterModalOpen(true);
+                }}
                 className="font-semibold text-[#4493AC] hover:text-[#243D6D] transition-colors focus:outline-none cursor-pointer"
               >
                 Criar conta
@@ -158,6 +179,7 @@ export default function LoginPage() {
       <CriarContaModal
         isOpen={isRegisterModalOpen}
         onClose={() => setIsRegisterModalOpen(false)}
+        onUserCreated={handleUserCreated}
       />
     </div>
   );

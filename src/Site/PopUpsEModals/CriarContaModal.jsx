@@ -1,42 +1,33 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { UserPlus, X } from 'lucide-react';
-import FormInput from '@/components/ComponentesDasPaginas/AddUser/FormInput';
-import FormSelect from '@/components/ComponentesDasPaginas/AddUser/FormSelect';
+import { UserPlus, X, Eye, EyeOff } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { getApiBase } from '@/config/api';
 
-const TRILHA_OPTIONS = [
-  { value: 'Software', label: 'Desenvolvimento de Software' },
-  { value: 'Automação', label: 'Automação Industrial' },
-  { value: 'IA', label: 'Inteligência Artificial' },
-  { value: 'Embarcados', label: 'Sistemas Embarcados' },
-];
-
-const SEMESTRE_OPTIONS = Array.from({ length: 10 }, (_, i) => ({
-  value: String(i + 1),
-  label: String(i + 1),
-}));
-
 const EDGE_EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@edge\.ufal\.br$/i;
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}$/;
 
 const INITIAL_FORM_DATA = {
   nomeCompleto: '',
   email: '',
-  matricula: '',
-  anoIngresso: '',
-  semestreNumero: '',
-  trilha: '',
+  password: '',
+  confirmPassword: '',
 };
 
 const CriarContaModal = ({ isOpen, onClose, onUserCreated }) => {
+  const router = useRouter();
   const [formData, setFormData] = useState(INITIAL_FORM_DATA);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [statusMessage, setStatusMessage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (!isOpen) return;
     setStatusMessage(null);
+    setShowPassword(false);
+    setShowConfirmPassword(false);
     setFormData(INITIAL_FORM_DATA);
   }, [isOpen]);
 
@@ -48,10 +39,11 @@ const CriarContaModal = ({ isOpen, onClose, onUserCreated }) => {
 
     const nome = formData.nomeCompleto.trim();
     const email = formData.email.trim();
-    const matricula = formData.matricula.trim();
+    const password = formData.password;
+    const confirmPassword = formData.confirmPassword;
 
-    if (!nome || !email) {
-      setStatusMessage({ type: 'error', text: 'Nome e e-mail institucional são obrigatórios.' });
+    if (!nome || !email || !password || !confirmPassword) {
+      setStatusMessage({ type: 'error', text: 'Todos os campos são obrigatórios.' });
       return;
     }
 
@@ -60,61 +52,57 @@ const CriarContaModal = ({ isOpen, onClose, onUserCreated }) => {
       return;
     }
 
-    if (!matricula || matricula.length < 7 || matricula.length > 20 || !/^\d+$/.test(matricula)) {
-      setStatusMessage({ type: 'error', text: 'A matrícula deve conter entre 7 e 20 dígitos numéricos.' });
+    if (!PASSWORD_REGEX.test(password)) {
+      setStatusMessage({
+        type: 'error',
+        text: 'A senha deve conter no mínimo 8 caracteres, incluindo letra maiúscula, minúscula, número e caractere especial.',
+      });
       return;
     }
 
-    if (formData.anoIngresso && parseInt(formData.anoIngresso, 10) < 2000) {
-      setStatusMessage({ type: 'error', text: 'O ano de ingresso deve ser igual ou superior a 2000.' });
+    if (password !== confirmPassword) {
+      setStatusMessage({ type: 'error', text: 'As senhas informadas não coincidem.' });
       return;
     }
 
     const payload = {
       name: nome,
       email: email.toLowerCase(),
-      admin: false,
-      student_profile: {
-        matricula: matricula,
-        ano_ingresso: formData.anoIngresso ? parseInt(formData.anoIngresso, 10) : null,
-        semestre: formData.semestreNumero ? parseInt(formData.semestreNumero, 10) : null,
-        turma_id: null,
-        cargo_id: null,
-        curso_id: null,
-        trilha: formData.trilha || null,
-      },
+      password: password,
+      confirm_password: confirmPassword,
     };
 
     setIsSubmitting(true);
     try {
-      const token = typeof window !== 'undefined' ? localStorage.getItem('ponto_ai_token') : '';
-      const headers = {
-        'Content-Type': 'application/json',
-        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
-      };
-
-      const response = await fetch(`${getApiBase()}/users/`, {
+      const response = await fetch(`${getApiBase()}/auth/register`, {
         method: 'POST',
-        headers,
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(payload),
       });
 
       if (response.ok) {
-        const createdUser = await response.json();
+        const data = await response.json();
+        if (data.access_token) {
+          localStorage.setItem('ponto_ai_token', data.access_token);
+        }
+        if (data.user) {
+          localStorage.setItem('ponto_ai_user', JSON.stringify(data.user));
+        }
         setStatusMessage({
           type: 'success',
-          text: 'Conta criada com sucesso! Sua senha inicial padrão é "sejabemvindo". Faça login para continuar.',
+          text: 'Conta criada com sucesso! Redirecionando...',
         });
         setFormData(INITIAL_FORM_DATA);
         if (onUserCreated) {
-          onUserCreated(createdUser);
+          onUserCreated(data);
         }
-        setTimeout(() => {
-          onClose();
-        }, 2000);
+        onClose();
+        router.push('/');
       } else {
         const errorData = await response.json();
-        let errorMessage = 'Erro ao criar conta de estudante.';
+        let errorMessage = 'Erro ao criar conta.';
 
         if (typeof errorData.detail === 'string') {
           errorMessage = errorData.detail;
@@ -122,7 +110,7 @@ const CriarContaModal = ({ isOpen, onClose, onUserCreated }) => {
           errorMessage = errorData.detail
             .map((err) => {
               if (err.loc && err.loc.includes('email')) return 'O e-mail deve pertencer ao domínio @edge.ufal.br.';
-              if (err.loc && err.loc.includes('ano_ingresso')) return 'O ano de ingresso deve ser igual ou superior a 2000.';
+              if (err.loc && err.loc.includes('password')) return 'A senha deve conter no mínimo 8 caracteres, incluindo letra maiúscula, minúscula, número e caractere especial.';
               return err.msg;
             })
             .join(' ');
@@ -138,7 +126,7 @@ const CriarContaModal = ({ isOpen, onClose, onUserCreated }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/50 backdrop-blur-sm overflow-y-auto">
-      <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-3xl my-4 sm:my-8 overflow-hidden border border-gray-100 animate-in fade-in zoom-in duration-200">
+      <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-lg my-4 sm:my-8 overflow-hidden border border-gray-100 animate-in fade-in zoom-in duration-200">
         {/* Faixa superior */}
         <div className="h-2 bg-gradient-to-r from-[#4493AC] to-[#243D6D]" />
 
@@ -164,7 +152,7 @@ const CriarContaModal = ({ isOpen, onClose, onUserCreated }) => {
 
         {/* Corpo do Formulário */}
         <form onSubmit={handleSubmit}>
-          <div className="p-4 sm:p-8 max-h-[70vh] sm:max-h-[75vh] overflow-y-auto space-y-5 sm:space-y-6">
+          <div className="p-4 sm:p-8 space-y-4">
             {statusMessage && (
               <div
                 className={`p-4 rounded-xl font-medium text-sm border ${
@@ -177,95 +165,90 @@ const CriarContaModal = ({ isOpen, onClose, onUserCreated }) => {
               </div>
             )}
 
-            {/* Dados Pessoais */}
-            <div className="grid grid-cols-12 gap-5">
-              <div className="col-span-12 sm:col-span-6">
-                <FormInput
-                  label="Nome Completo"
-                  value={formData.nomeCompleto}
-                  onChange={(e) => setFormData({ ...formData, nomeCompleto: e.target.value })}
-                  placeholder="Seu nome completo"
-                  required
-                />
-              </div>
+            {/* Nome Completo */}
+            <div className="flex flex-col gap-1.5 w-full">
+              <label className="text-sm font-medium text-gray-700">Nome Completo</label>
+              <input
+                type="text"
+                value={formData.nomeCompleto}
+                onChange={(e) => setFormData({ ...formData, nomeCompleto: e.target.value })}
+                placeholder="Seu nome completo"
+                required
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-black focus:outline-none focus:border-[#4493AC] focus:ring-1 focus:ring-[#4493AC] transition-colors text-sm"
+              />
+            </div>
 
-              <div className="col-span-12 sm:col-span-6">
-                <FormInput
-                  label="E-mail Institucional (@edge.ufal.br)"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="usuario@edge.ufal.br"
+            {/* E-mail Institucional */}
+            <div className="flex flex-col gap-1.5 w-full">
+              <label className="text-sm font-medium text-gray-700">E-mail Institucional</label>
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                placeholder="usuario@edge.ufal.br"
+                required
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-black focus:outline-none focus:border-[#4493AC] focus:ring-1 focus:ring-[#4493AC] transition-colors text-sm"
+              />
+            </div>
+
+            {/* Senha */}
+            <div className="flex flex-col gap-1.5 w-full">
+              <label className="text-sm font-medium text-gray-700">Senha</label>
+              <div className="relative flex items-center w-full border border-gray-300 rounded-xl focus-within:border-[#4493AC] focus-within:ring-1 focus-within:ring-[#4493AC] transition-colors">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  placeholder="Crie sua senha de acesso"
                   required
+                  className="w-full px-4 py-2.5 bg-transparent text-black text-sm focus:outline-none rounded-xl"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="px-3 text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
 
-            {/* Seção Dados do Estudante */}
-            <div className="pt-5 border-t border-gray-100 space-y-5">
-              <h3 className="text-lg font-bold text-[#4493AC]">Dados Acadêmicos</h3>
-
-              <div className="grid grid-cols-12 gap-5">
-                <div className="col-span-12 sm:col-span-6">
-                  <FormInput
-                    label="Matrícula"
-                    maxLength="20"
-                    value={formData.matricula}
-                    onChange={(e) => setFormData({ ...formData, matricula: e.target.value.replace(/\D/g, '') })}
-                    placeholder="Sua matrícula (somente números)"
-                    required
-                  />
-                </div>
-
-                <div className="col-span-12 sm:col-span-3">
-                  <FormInput
-                    label="Ano de Ingresso"
-                    type="number"
-                    min="2000"
-                    value={formData.anoIngresso}
-                    onChange={(e) => setFormData({ ...formData, anoIngresso: e.target.value })}
-                    placeholder="Ex: 2024"
-                  />
-                </div>
-
-                <div className="col-span-12 sm:col-span-3">
-                  <FormSelect
-                    label="Semestre"
-                    value={formData.semestreNumero}
-                    onChange={(e) => setFormData({ ...formData, semestreNumero: e.target.value })}
-                    options={SEMESTRE_OPTIONS}
-                    placeholder="--"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-12 gap-5">
-                <div className="col-span-12 sm:col-span-6">
-                  <FormSelect
-                    label="Trilha"
-                    value={formData.trilha}
-                    onChange={(e) => setFormData({ ...formData, trilha: e.target.value })}
-                    options={TRILHA_OPTIONS}
-                    placeholder="Selecione a trilha"
-                  />
-                </div>
+            {/* Confirmar Senha */}
+            <div className="flex flex-col gap-1.5 w-full">
+              <label className="text-sm font-medium text-gray-700">Confirmar Senha</label>
+              <div className="relative flex items-center w-full border border-gray-300 rounded-xl focus-within:border-[#4493AC] focus-within:ring-1 focus-within:ring-[#4493AC] transition-colors">
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  value={formData.confirmPassword}
+                  onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                  placeholder="Confirme sua senha de acesso"
+                  required
+                  className="w-full px-4 py-2.5 bg-transparent text-black text-sm focus:outline-none rounded-xl"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="px-3 text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer"
+                >
+                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
               </div>
             </div>
           </div>
 
           {/* Rodapé / Ações */}
-          <div className="px-8 py-5 bg-gray-50 flex items-center justify-end gap-3 border-t border-gray-100">
+          <div className="px-6 sm:px-8 py-4 sm:py-5 bg-gray-50 flex items-center justify-end gap-3 border-t border-gray-100">
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-2.5 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition-colors text-sm cursor-pointer"
+              className="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-700 font-medium hover:bg-gray-100 transition-colors text-sm cursor-pointer"
             >
               Cancelar
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`px-8 py-2.5 rounded-xl text-white font-semibold shadow-sm transition-all text-sm cursor-pointer ${
+              className={`px-7 py-2.5 rounded-xl text-white font-semibold shadow-sm transition-all text-sm cursor-pointer ${
                 isSubmitting
                   ? 'bg-gray-400 cursor-not-allowed'
                   : 'bg-[#4493AC] hover:bg-[#243D6D]'

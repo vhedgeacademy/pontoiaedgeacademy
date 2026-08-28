@@ -2,13 +2,24 @@ import React from 'react';
 import { render, screen, fireEvent, act, waitFor } from '@testing-library/react';
 import CriarContaModal from '@/Site/PopUpsEModals/CriarContaModal';
 
+const mockPush = jest.fn();
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: mockPush,
+  }),
+}));
+
 const setupMocks = () => {
   global.fetch = jest.fn().mockImplementation((url, options = {}) => {
     const urlStr = String(url);
-    if (urlStr.endsWith('/users/') && options.method === 'POST') {
+    if (urlStr.endsWith('/auth/register') && options.method === 'POST') {
       return Promise.resolve({
         ok: true,
-        json: async () => ({ id: 101, email: 'novo.aluno@edge.ufal.br', admin: false }),
+        json: async () => ({
+          access_token: 'jwt-token-register',
+          token_type: 'bearer',
+          user: { id: 101, email: 'novo.aluno@edge.ufal.br', name: 'Novo Aluno Edge', admin: false },
+        }),
       });
     }
     return Promise.resolve({ ok: true, json: async () => [] });
@@ -21,9 +32,10 @@ describe('CriarContaModal Component', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    localStorage.clear();
   });
 
-  it('renderiza o formulário de cadastro de estudante sem campos de administrador, turma, cargo e curso', async () => {
+  it('renderiza apenas os campos Nome Completo, E-mail Institucional, Senha e Confirmar Senha', async () => {
     setupMocks();
     await act(async () => {
       render(
@@ -39,21 +51,16 @@ describe('CriarContaModal Component', () => {
     expect(screen.getByRole('button', { name: 'Criar Conta' })).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Seu nome completo')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('usuario@edge.ufal.br')).toBeInTheDocument();
-    expect(screen.getByPlaceholderText('Sua matrícula (somente números)')).toBeInTheDocument();
-    expect(screen.getByText('Dados Acadêmicos')).toBeInTheDocument();
-    expect(screen.getByText('Selecione a trilha')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Crie sua senha de acesso')).toBeInTheDocument();
+    expect(screen.getByPlaceholderText('Confirme sua senha de acesso')).toBeInTheDocument();
 
-    // Garante que NÃO existe campo ou toggle de Administrador
+    // Garante que campos academicos e extras NAO existem
+    expect(screen.queryByPlaceholderText(/Sua matrícula/i)).not.toBeInTheDocument();
+    expect(screen.queryByText('Dados Acadêmicos')).not.toBeInTheDocument();
+    expect(screen.queryByText('Ano de Ingresso')).not.toBeInTheDocument();
+    expect(screen.queryByText('Semestre')).not.toBeInTheDocument();
+    expect(screen.queryByText('Trilha')).not.toBeInTheDocument();
     expect(screen.queryByText(/É Admin/i)).not.toBeInTheDocument();
-    expect(screen.queryByLabelText(/É Admin/i)).not.toBeInTheDocument();
-
-    // Garante que NÃO existem campos de Turma, Cargo e Curso (restritos ao Administrador)
-    expect(screen.queryByText('Turma')).not.toBeInTheDocument();
-    expect(screen.queryByText('Selecione a turma')).not.toBeInTheDocument();
-    expect(screen.queryByText('Cargo')).not.toBeInTheDocument();
-    expect(screen.queryByText('Selecione o cargo')).not.toBeInTheDocument();
-    expect(screen.queryByText('Curso')).not.toBeInTheDocument();
-    expect(screen.queryByText('Selecione o curso')).not.toBeInTheDocument();
   });
 
   it('valida que o e-mail deve pertencer ao domínio @edge.ufal.br', async () => {
@@ -74,8 +81,11 @@ describe('CriarContaModal Component', () => {
     fireEvent.change(screen.getByPlaceholderText('usuario@edge.ufal.br'), {
       target: { value: 'aluno@gmail.com' },
     });
-    fireEvent.change(screen.getByPlaceholderText('Sua matrícula (somente números)'), {
-      target: { value: '1234567' },
+    fireEvent.change(screen.getByPlaceholderText('Crie sua senha de acesso'), {
+      target: { value: 'Password123!' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('Confirme sua senha de acesso'), {
+      target: { value: 'Password123!' },
     });
 
     await act(async () => {
@@ -87,7 +97,7 @@ describe('CriarContaModal Component', () => {
     ).toBeInTheDocument();
   });
 
-  it('valida tamanho e formato da matrícula', async () => {
+  it('valida que as senhas devem coincidir', async () => {
     setupMocks();
     await act(async () => {
       render(
@@ -105,8 +115,11 @@ describe('CriarContaModal Component', () => {
     fireEvent.change(screen.getByPlaceholderText('usuario@edge.ufal.br'), {
       target: { value: 'aluno@edge.ufal.br' },
     });
-    fireEvent.change(screen.getByPlaceholderText('Sua matrícula (somente números)'), {
-      target: { value: '12345' }, // Menos de 7 dígitos
+    fireEvent.change(screen.getByPlaceholderText('Crie sua senha de acesso'), {
+      target: { value: 'Password123!' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('Confirme sua senha de acesso'), {
+      target: { value: 'DifferentPassword123!' },
     });
 
     await act(async () => {
@@ -114,11 +127,11 @@ describe('CriarContaModal Component', () => {
     });
 
     expect(
-      screen.getByText('A matrícula deve conter entre 7 e 20 dígitos numéricos.')
+      screen.getByText('As senhas informadas não coincidem.')
     ).toBeInTheDocument();
   });
 
-  it('submete com sucesso a criação de conta do estudante com dados válidos', async () => {
+  it('submete com sucesso os dados, salva token/usuario no localStorage e redireciona direto para a home', async () => {
     setupMocks();
     await act(async () => {
       render(
@@ -136,8 +149,11 @@ describe('CriarContaModal Component', () => {
     fireEvent.change(screen.getByPlaceholderText('usuario@edge.ufal.br'), {
       target: { value: 'novo.aluno@edge.ufal.br' },
     });
-    fireEvent.change(screen.getByPlaceholderText('Sua matrícula (somente números)'), {
-      target: { value: '2024123456' },
+    fireEvent.change(screen.getByPlaceholderText('Crie sua senha de acesso'), {
+      target: { value: 'Password123!' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('Confirme sua senha de acesso'), {
+      target: { value: 'Password123!' },
     });
 
     await act(async () => {
@@ -145,12 +161,10 @@ describe('CriarContaModal Component', () => {
     });
 
     await waitFor(() => {
-      expect(
-        screen.getByText(/Conta criada com sucesso!/i)
-      ).toBeInTheDocument();
-      expect(mockOnUserCreated).toHaveBeenCalledWith(
-        expect.objectContaining({ email: 'novo.aluno@edge.ufal.br' })
-      );
+      expect(localStorage.getItem('ponto_ai_token')).toBe('jwt-token-register');
+      expect(localStorage.getItem('ponto_ai_user')).toContain('novo.aluno@edge.ufal.br');
+      expect(mockPush).toHaveBeenCalledWith('/');
+      expect(mockOnClose).toHaveBeenCalled();
     });
   });
 });

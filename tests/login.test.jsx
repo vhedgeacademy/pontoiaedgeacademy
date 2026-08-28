@@ -78,12 +78,12 @@ describe('Página de Login', () => {
     });
   });
 
-  it('deve redirecionar aluno para a Home (/) apos login com sucesso', async () => {
+  it('deve redirecionar aluno para a Home (/) apos login com sucesso quando must_change_password for false', async () => {
     global.fetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({
         access_token: 'student-token',
-        user: { id: 2, name: 'Aluno', email: 'aluno@edge.ufal.br', admin: false, has_logged_in: true, must_change_password: false }
+        user: { id: 2, name: 'Aluno', email: 'aluno@edge.ufal.br', admin: false, has_logged_in: false, must_change_password: false }
       })
     });
 
@@ -95,6 +95,71 @@ describe('Página de Login', () => {
     fireEvent.change(emailInput, { target: { value: 'aluno@edge.ufal.br' } });
     fireEvent.change(passwordInput, { target: { value: '123456' } });
     fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/');
+    });
+  });
+
+  it('deve redirecionar para /redefinir-senha quando must_change_password for true', async () => {
+    global.fetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({
+        access_token: 'temp-token',
+        user: { id: 3, name: 'Aluno Temp', email: 'temp@edge.ufal.br', admin: false, has_logged_in: false, must_change_password: true }
+      })
+    });
+
+    render(<LoginPage />);
+    const emailInput = screen.getByPlaceholderText(/email/i);
+    const passwordInput = document.querySelector('input[type="password"]');
+    const submitButton = screen.getByRole('button', { name: /entrar|login|submit/i });
+
+    fireEvent.change(emailInput, { target: { value: 'temp@edge.ufal.br' } });
+    fireEvent.change(passwordInput, { target: { value: 'sejabemvindo' } });
+    fireEvent.click(submitButton);
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith('/redefinir-senha?first_access=true');
+    });
+  });
+
+  it('deve auto-autenticar e redirecionar para a home ao cadastrar novo usuario pelo modal', async () => {
+    global.fetch.mockImplementation((url, options = {}) => {
+      const urlStr = String(url);
+      if (urlStr.endsWith('/auth/register') && options.method === 'POST') {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            access_token: 'jwt-auto-login-token',
+            token_type: 'bearer',
+            user: { id: 10, email: 'novoaluno@edge.ufal.br', name: 'Novo Aluno', admin: false, must_change_password: false, has_logged_in: true }
+          }),
+        });
+      }
+      return Promise.resolve({ ok: true, json: async () => ({}) });
+    });
+
+    render(<LoginPage />);
+    const createAccountButton = screen.getByRole('button', { name: /Criar conta/i });
+    fireEvent.click(createAccountButton);
+
+    expect(screen.getByText('Preencha seus dados para criar sua conta de estudante no Ponto AI')).toBeInTheDocument();
+
+    fireEvent.change(screen.getByPlaceholderText('Seu nome completo'), {
+      target: { value: 'Novo Aluno' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('usuario@edge.ufal.br'), {
+      target: { value: 'novoaluno@edge.ufal.br' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('Crie sua senha de acesso'), {
+      target: { value: 'Password123!' },
+    });
+    fireEvent.change(screen.getByPlaceholderText('Confirme sua senha de acesso'), {
+      target: { value: 'Password123!' },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Criar Conta' }));
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith('/');
