@@ -5,6 +5,7 @@ import { Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { getApiBase } from '@/config/api';
+import CriarContaModal from '@/Site/PopUpsEModals/CriarContaModal';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -13,6 +14,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -135,8 +137,28 @@ export default function LoginPage() {
               {isSubmitting ? 'Autenticando...' : 'Entrar no Sistema'}
             </button>
           </div>
+
+          {/* Create Account Section */}
+          <div className="text-center pt-4 border-t border-gray-100">
+            <p className="text-sm text-gray-600">
+              Ainda não tem uma conta?{' '}
+              <button
+                type="button"
+                onClick={() => setIsRegisterModalOpen(true)}
+                className="font-semibold text-[#4493AC] hover:text-[#243D6D] transition-colors focus:outline-none cursor-pointer"
+              >
+                Criar conta
+              </button>
+            </p>
+          </div>
         </form>
       </div>
+
+      {/* Modal de Auto-Cadastro de Estudante */}
+      <CriarContaModal
+        isOpen={isRegisterModalOpen}
+        onClose={() => setIsRegisterModalOpen(false)}
+      />
     </div>
   );
 }

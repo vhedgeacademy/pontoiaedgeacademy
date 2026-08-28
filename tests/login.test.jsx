@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import LoginPage from '../../frontend/src/app/login/page';
+import LoginPage from '@/app/login/page';
 
 const mockPush = jest.fn();
 jest.mock('next/navigation', () => ({
@@ -13,10 +13,16 @@ jest.mock('next/navigation', () => ({
 describe('Página de Login', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    global.fetch = jest.fn();
+    global.fetch = jest.fn().mockImplementation((url) => {
+      const urlStr = String(url);
+      if (urlStr.endsWith('/turmas') || urlStr.endsWith('/cargos') || urlStr.endsWith('/cursos')) {
+        return Promise.resolve({ ok: true, json: async () => [] });
+      }
+      return Promise.resolve({ ok: true, json: async () => ({}) });
+    });
   });
 
-  it('deve renderizar o título, campos de email e senha, e link de esqueci a senha', () => {
+  it('deve renderizar o título, campos de email e senha, link de esqueci a senha e criar conta', () => {
     render(<LoginPage />);
 
     // Verifica Título
@@ -34,6 +40,19 @@ describe('Página de Login', () => {
     // Verifica Link "Esqueci a senha"
     const forgotPasswordLink = screen.getByText(/Esqueci a senha/i);
     expect(forgotPasswordLink).toBeInTheDocument();
+
+    // Verifica Seção "Ainda não tem uma conta? Criar conta"
+    expect(screen.getByText(/Ainda não tem uma conta\?/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /Criar conta/i })).toBeInTheDocument();
+  });
+
+  it('deve abrir o modal de Criar Conta ao clicar no botão correspondente', () => {
+    render(<LoginPage />);
+
+    const createAccountButton = screen.getByRole('button', { name: /Criar conta/i });
+    fireEvent.click(createAccountButton);
+
+    expect(screen.getByText('Preencha seus dados para criar sua conta de estudante no Ponto AI')).toBeInTheDocument();
   });
 
   it('deve redirecionar administrador para a Home (/) apos login com sucesso', async () => {
