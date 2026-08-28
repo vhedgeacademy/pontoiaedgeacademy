@@ -26,9 +26,6 @@ const INITIAL_FORM_DATA = {
   matricula: '',
   anoIngresso: '',
   semestreNumero: '',
-  turma: '',
-  cargo: '',
-  curso: '',
   trilha: '',
 };
 
@@ -37,45 +34,8 @@ const CriarContaModal = ({ isOpen, onClose, onUserCreated }) => {
   const [statusMessage, setStatusMessage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [turmaOptions, setTurmaOptions] = useState([]);
-  const [cargoOptions, setCargoOptions] = useState([]);
-  const [cursoOptions, setCursoOptions] = useState([]);
-
   useEffect(() => {
     if (!isOpen) return;
-
-    const fetchOptions = async () => {
-      const token = typeof window !== 'undefined' ? localStorage.getItem('ponto_ai_token') : '';
-      const headers = {
-        'Content-Type': 'application/json',
-        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
-      };
-
-      try {
-        const [turmasRes, cargosRes, cursosRes] = await Promise.all([
-          fetch(`${getApiBase()}/turmas`, { headers }),
-          fetch(`${getApiBase()}/cargos`, { headers }),
-          fetch(`${getApiBase()}/cursos`, { headers }),
-        ]);
-
-        if (turmasRes.ok) {
-          const data = await turmasRes.json();
-          setTurmaOptions(data.map((item) => ({ value: item.id.toString(), label: item.name })));
-        }
-        if (cargosRes.ok) {
-          const data = await cargosRes.json();
-          setCargoOptions(data.map((item) => ({ value: item.id.toString(), label: item.name })));
-        }
-        if (cursosRes.ok) {
-          const data = await cursosRes.json();
-          setCursoOptions(data.map((item) => ({ value: item.id.toString(), label: item.name })));
-        }
-      } catch (error) {
-        console.error('Erro ao buscar dados auxiliares:', error);
-      }
-    };
-
-    fetchOptions();
     setStatusMessage(null);
     setFormData(INITIAL_FORM_DATA);
   }, [isOpen]);
@@ -118,9 +78,9 @@ const CriarContaModal = ({ isOpen, onClose, onUserCreated }) => {
         matricula: matricula,
         ano_ingresso: formData.anoIngresso ? parseInt(formData.anoIngresso, 10) : null,
         semestre: formData.semestreNumero ? parseInt(formData.semestreNumero, 10) : null,
-        turma_id: formData.turma ? parseInt(formData.turma, 10) : null,
-        cargo_id: formData.cargo ? parseInt(formData.cargo, 10) : null,
-        curso_id: formData.curso ? parseInt(formData.curso, 10) : null,
+        turma_id: null,
+        cargo_id: null,
+        curso_id: null,
         trilha: formData.trilha || null,
       },
     };
@@ -279,38 +239,16 @@ const CriarContaModal = ({ isOpen, onClose, onUserCreated }) => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                <FormSelect
-                  label="Turma"
-                  value={formData.turma}
-                  onChange={(e) => setFormData({ ...formData, turma: e.target.value })}
-                  options={turmaOptions}
-                  placeholder="Selecione a turma"
-                />
-
-                <FormSelect
-                  label="Cargo"
-                  value={formData.cargo}
-                  onChange={(e) => setFormData({ ...formData, cargo: e.target.value })}
-                  options={cargoOptions}
-                  placeholder="Selecione o cargo"
-                />
-
-                <FormSelect
-                  label="Curso"
-                  value={formData.curso}
-                  onChange={(e) => setFormData({ ...formData, curso: e.target.value })}
-                  options={cursoOptions}
-                  placeholder="Selecione o curso"
-                />
-
-                <FormSelect
-                  label="Trilha"
-                  value={formData.trilha}
-                  onChange={(e) => setFormData({ ...formData, trilha: e.target.value })}
-                  options={TRILHA_OPTIONS}
-                  placeholder="Selecione a trilha"
-                />
+              <div className="grid grid-cols-12 gap-5">
+                <div className="col-span-12 sm:col-span-6">
+                  <FormSelect
+                    label="Trilha"
+                    value={formData.trilha}
+                    onChange={(e) => setFormData({ ...formData, trilha: e.target.value })}
+                    options={TRILHA_OPTIONS}
+                    placeholder="Selecione a trilha"
+                  />
+                </div>
               </div>
             </div>
           </div>
