@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
-import Home from '../../frontend/src/app/page';
+import Home from '@/app/page';
 
 // Mock do useRouter e usePathname estático para evitar loop infinito
 const mockRouter = { push: jest.fn() };
