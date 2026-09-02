@@ -2,6 +2,7 @@ import React, { useEffect, useCallback } from 'react';
 import { X, Clock, Calendar, Camera, MapPin } from 'lucide-react';
 import UserAvatar from '@/components/UserAvatar';
 import { getTerminalImage } from '@/config/terminals';
+import { resolvePontoImage } from '@/utils/imageUtils';
 
 const PontoDetailModal = ({ ponto, onClose }) => {
   const handleKeyDown = useCallback((e) => {
@@ -19,22 +20,19 @@ const PontoDetailModal = ({ ponto, onClose }) => {
 
   const isEntrada = ponto.event_type === 'Entrada';
 
-  // Foto do Facedoor / Snapshot do Terminal Facial capturada durante o match
-  const fotoFacedoor =
-    ponto.foto_base64
-      ? ponto.foto_base64.startsWith('data:')
-        ? ponto.foto_base64
-        : `data:image/jpeg;base64,${ponto.foto_base64}`
-      : null;
+  // Foto do Facedoor / Snapshot do Ponto capturada e armazenada no banco
+  const rawPontoFoto = ponto.foto_base64 || ponto.imagem || ponto.foto || ponto.image_base64 || null;
+  const fotoFacedoor = resolvePontoImage(rawPontoFoto);
 
   // Foto do terminal físico correspondente à câmera onde o ponto foi registrado
   const fotoTerminal = getTerminalImage(ponto.camera_id);
 
-  // Imagem para exibição: prioriza snapshot do Facedoor, ou foto do dispositivo físico
+  // Imagem para exibição: prioriza snapshot do Ponto do banco de dados, ou foto do dispositivo físico
   const imagemExibicao = fotoFacedoor || fotoTerminal;
 
   // Foto de perfil exclusiva para o Avatar do usuário
-  const fotoPerfil = ponto.photo_url || ponto.foto || null;
+  const rawPerfilFoto = ponto.photo_url || ponto.profile_image || null;
+  const fotoPerfil = resolvePontoImage(rawPerfilFoto) || rawPerfilFoto;
 
   return (
     <div

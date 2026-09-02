@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { resolvePontoImage } from '@/utils/imageUtils';
 
 export default function UserAvatar({
   src,
@@ -12,8 +13,9 @@ export default function UserAvatar({
 }) {
   const [hasError, setHasError] = useState(false);
 
+  const resolvedSrc = resolvePontoImage(src);
   const isImageValid = Boolean(
-    src && typeof src === 'string' && src.trim() !== '' && !hasError
+    resolvedSrc && typeof resolvedSrc === 'string' && resolvedSrc.trim() !== '' && !hasError
   );
 
   const initial = name?.trim()?.charAt(0)?.toUpperCase() || 'U';
@@ -21,7 +23,7 @@ export default function UserAvatar({
   if (isImageValid) {
     return (
       <img
-        src={src}
+        src={resolvedSrc}
         alt={alt || name || 'Avatar'}
         onError={() => setHasError(true)}
         className={`rounded-full object-cover shrink-0 ${className}`}

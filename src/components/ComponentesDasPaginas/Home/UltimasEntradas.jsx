@@ -22,7 +22,7 @@ const UltimasEntradas = ({ entradas, onSelectPonto }) => {
                 key={entrada.id || index}
                 nome={entrada.nome}
                 hora={entrada.horario || entrada.hora}
-                foto={entrada.photo_url || entrada.foto}
+                foto={entrada.foto_base64 || entrada.imagem || entrada.photo_url || entrada.foto}
                 camera={entrada.camera_id}
                 tipo="Entrada"
                 onClick={() => onSelectPonto && onSelectPonto(entrada)}

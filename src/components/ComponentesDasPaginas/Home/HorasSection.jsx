@@ -11,8 +11,11 @@ import {
   CheckCircle,
   AlertCircle,
   CalendarCheck,
+  Camera,
 } from 'lucide-react';
 import { getApiBase } from '@/config/api';
+import { getTerminalImage } from '@/config/terminals';
+import { resolvePontoImage } from '@/utils/imageUtils';
 
 const HorasSection = ({ userData }) => {
   const router = useRouter();
@@ -453,32 +456,69 @@ const HorasSection = ({ userData }) => {
             <div className="space-y-3">
               {historyData.registros.map((reg, idx) => {
                 const isEnt = reg.event_type === 'Entrada';
+                const pontoImage = resolvePontoImage(reg.foto_base64 || reg.imagem || reg.foto);
+                const terminalImage = getTerminalImage(reg.camera_id);
+                const displayImage = pontoImage || terminalImage || resolvePontoImage(reg.photo_url);
+
                 return (
                   <div
                     key={reg.id || idx}
-                    className={`flex items-center justify-between p-4 rounded-2xl border transition-all ${
+                    className={`flex items-center justify-between p-3.5 sm:p-4 rounded-2xl border transition-all ${
                       isEnt
                         ? 'bg-[#F4F9FB] border-[#D4E8ED]'
                         : 'bg-[#FFF9F5] border-[#FFE0D0]'
                     }`}
                   >
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-sm ${
-                          isEnt ? 'bg-[#D4E8ED] text-[#4493AC]' : 'bg-[#FFE0D0] text-[#E67E22]'
-                        }`}
-                      >
-                        {isEnt ? <LogIn className="w-5 h-5" /> : <LogOut className="w-5 h-5" />}
+                    <div className="flex items-center gap-3.5 min-w-0 pr-2">
+                      {/* Miniatura da Imagem */}
+                      <div className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-xl overflow-hidden bg-slate-900 border border-gray-200 shrink-0 shadow-sm">
+                        {displayImage ? (
+                          <img
+                            src={displayImage}
+                            alt={pontoImage ? `Foto do Ponto ${reg.event_type}` : `Terminal ${reg.camera_id}`}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div
+                            className={`w-full h-full flex items-center justify-center ${
+                              isEnt ? 'bg-[#D4E8ED] text-[#4493AC]' : 'bg-[#FFE0D0] text-[#E67E22]'
+                            }`}
+                          >
+                            {isEnt ? <LogIn className="w-5 h-5" /> : <LogOut className="w-5 h-5" />}
+                          </div>
+                        )}
+                        <span
+                          className={`absolute top-1 left-1 w-2 h-2 rounded-full ring-1.5 ring-white ${
+                            isEnt ? 'bg-emerald-500' : 'bg-amber-500'
+                          }`}
+                        />
                       </div>
-                      <div>
-                        <p className="font-bold text-gray-800 text-sm">{reg.event_type}</p>
-                        <p className="text-xs text-gray-500">{reg.camera_id || 'Câmera / Local'}</p>
+
+                      <div className="flex flex-col min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            className={`px-2 py-0.2 rounded-md text-[11px] font-bold ${
+                              isEnt ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                            }`}
+                          >
+                            {reg.event_type}
+                          </span>
+                          {pontoImage && (
+                            <span className="text-[10px] font-semibold text-blue-700 bg-blue-50 border border-blue-200 px-1.5 py-0.2 rounded hidden xs:inline-flex items-center gap-0.5">
+                              <Camera className="w-2.5 h-2.5" />
+                              <span>Foto</span>
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs sm:text-sm font-semibold text-gray-700 mt-0.5 truncate">
+                          {reg.camera_id || 'Câmera / Local'}
+                        </p>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 shrink-0">
                       <span
-                        className={`px-4 py-1.5 rounded-full text-xs font-bold text-white shadow-sm ${
+                        className={`px-3.5 sm:px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold text-white shadow-sm font-mono ${
                           isEnt ? 'bg-[#2C3E50]' : 'bg-[#C0392B]'
                         }`}
                       >

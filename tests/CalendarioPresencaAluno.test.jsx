@@ -112,4 +112,57 @@ describe('CalendarioPresencaAluno component', () => {
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
   });
+
+  test('renderiza as imagens das entradas e saídas diretamente na lista de registros', async () => {
+    const mockAlunoInfo = {
+      nome: 'Victor Hugo',
+      rawUser: { id: 2, profile_image: '/images/profile.jpg' }
+    };
+
+    global.fetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        date: '2026-09-01',
+        primeira_entrada: '08:00',
+        ultima_saida: '12:00',
+        total_dia: '04:00',
+        total_semana: '20:00',
+        events: [
+          {
+            id: 201,
+            camera_id: 'Entrada Academy',
+            timestamp: '2026-09-01T08:00:00',
+            event_type: 'Entrada',
+            foto_base64: 'BASE64_ENTRADA_DATA'
+          },
+          {
+            id: 202,
+            camera_id: 'Saída Academy',
+            timestamp: '2026-09-01T12:00:00',
+            event_type: 'Saída',
+            imagem: 'BASE64_SAIDA_DATA'
+          }
+        ]
+      }),
+    });
+
+    render(<CalendarioPresencaAluno userId={2} alunoInfo={mockAlunoInfo} />);
+
+    await waitFor(() => {
+      // Verifica badges e textos
+      expect(screen.getByText('Entrada Academy')).toBeInTheDocument();
+      expect(screen.getByText('Saída Academy')).toBeInTheDocument();
+      expect(screen.getAllByText('Foto Facial').length).toBe(2);
+
+      // Verifica que as miniaturas das fotos do ponto estão no documento com src Base64
+      const imgEntrada = screen.getByAltText(/Foto do Ponto Entrada/i);
+      const imgSaida = screen.getByAltText(/Foto do Ponto Saída/i);
+
+      expect(imgEntrada).toBeInTheDocument();
+      expect(imgEntrada.src).toContain('data:image/jpeg;base64,BASE64_ENTRADA_DATA');
+
+      expect(imgSaida).toBeInTheDocument();
+      expect(imgSaida.src).toContain('data:image/jpeg;base64,BASE64_SAIDA_DATA');
+    });
+  });
 });
