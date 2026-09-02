@@ -83,16 +83,18 @@ const ConfigSection = ({ title, endpoint, tipoItem = 'item', refreshKey, onUpdat
       }
 
       if (studentIds !== undefined && studentIds !== null) {
+        const sanitizedIds = studentIds.map(Number).filter(n => !isNaN(n));
         const resSync = await fetch(`${getApiBase()}/${endpoint}/${id}/students`, {
           method: 'PUT',
           headers: getHeaders(),
-          body: JSON.stringify({ student_ids: studentIds })
+          body: JSON.stringify({ student_ids: sanitizedIds })
         });
         syncOk = resSync.ok;
       }
 
       if (!renameOk || !syncOk) {
         console.error(`Erro: Alguma das requisições de atualização falhou em ${endpoint}`);
+        throw new Error(`Falha ao salvar atualizações em ${endpoint}`);
       }
 
       // Refaz o fetch completo: os contadores de alunos só ficam corretos vindo do backend.
@@ -100,6 +102,7 @@ const ConfigSection = ({ title, endpoint, tipoItem = 'item', refreshKey, onUpdat
       onUpdate?.();
     } catch (e) {
       console.error(`Erro ao atualizar em ${endpoint}:`, e);
+      throw e;
     }
   };
 

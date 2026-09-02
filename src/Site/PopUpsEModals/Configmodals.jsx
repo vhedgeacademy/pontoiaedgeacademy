@@ -88,6 +88,8 @@ export const EditarItemModal = ({ isOpen, onClose, onConfirm, nomeAtual, tipoIte
   const [novoNome, setNovoNome] = useState(nomeAtual ?? '');
   const [alunosGlobais, setAlunosGlobais] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const [vinculadosIds, setVinculadosIds] = useState([]);
 
@@ -95,6 +97,7 @@ export const EditarItemModal = ({ isOpen, onClose, onConfirm, nomeAtual, tipoIte
     if (isOpen && entityId) {
       setNovoNome(nomeAtual ?? '');
       setSearchTerm('');
+      setErrorMsg('');
       
       const fetchAlunos = async () => {
         try {
@@ -107,8 +110,8 @@ export const EditarItemModal = ({ isOpen, onClose, onConfirm, nomeAtual, tipoIte
             setAlunosGlobais(data);
 
             const initiallyVinculados = data
-              .filter(a => a.student_profile?.[`${tipoItem}_id`] === entityId)
-              .map(a => a.id);
+              .filter(a => Number(a.student_profile?.[`${tipoItem}_id`]) === Number(entityId))
+              .map(a => Number(a.id));
             setVinculadosIds(initiallyVinculados);
           }
         } catch (e) {
@@ -122,28 +125,46 @@ export const EditarItemModal = ({ isOpen, onClose, onConfirm, nomeAtual, tipoIte
 
   if (!isOpen) return null;
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (novoNome.trim()) {
-      onConfirm(novoNome.trim(), vinculadosIds);
-      onClose();
+      setSaving(true);
+      setErrorMsg('');
+      try {
+        await onConfirm?.(novoNome.trim(), vinculadosIds.map(Number));
+        onClose();
+      } catch (err) {
+        console.error("Erro ao salvar alterações:", err);
+        setErrorMsg('Erro ao salvar alterações da entidade.');
+      } finally {
+        setSaving(false);
+      }
     }
   };
 
-  const handleAdd = (alunoId) => setVinculadosIds([...vinculadosIds, alunoId]);
-  const handleRemove = (alunoId) => setVinculadosIds(vinculadosIds.filter(id => id !== alunoId));
+  const handleAdd = (alunoId) => {
+    const numId = Number(alunoId);
+    if (!vinculadosIds.includes(numId)) {
+      setVinculadosIds([...vinculadosIds, numId]);
+    }
+  };
 
-  const vinculados = alunosGlobais.filter(a => vinculadosIds.includes(a.id));
+  const handleRemove = (alunoId) => {
+    const numId = Number(alunoId);
+    setVinculadosIds(vinculadosIds.filter(id => id !== numId));
+  };
+
+  const vinculados = alunosGlobais.filter(a => vinculadosIds.includes(Number(a.id)));
 
   // Disponíveis para vincular: alunos sem entidade deste tipo, ou que pertenciam
   // a esta entidade e foram desvinculados no modal (podem ser readicionados).
   // Alunos vinculados a OUTRA entidade do mesmo tipo ficam de fora de propósito.
   const disponiveis = alunosGlobais.filter(a => {
-    if (vinculadosIds.includes(a.id)) return false;
-    if (a.student_profile?.[`${tipoItem}_id`] === entityId) return true;
+    if (vinculadosIds.includes(Number(a.id))) return false;
+    if (Number(a.student_profile?.[`${tipoItem}_id`]) === Number(entityId)) return true;
     return a.student_profile?.[`${tipoItem}_id`] === null || a.student_profile?.[`${tipoItem}_id`] === undefined;
   });
 
-  const disponiveisFiltrados = disponiveis.filter(a => a.name.toLowerCase().includes(searchTerm.toLowerCase()));
+  const disponiveisFiltrados = disponiveis.filter(a => (a.name || '').toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -176,6 +197,12 @@ export const EditarItemModal = ({ isOpen, onClose, onConfirm, nomeAtual, tipoIte
               className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:outline-none focus:border-[#4493AC] transition-colors text-gray-800"
             />
           </div>
+
+          {errorMsg && (
+            <div className="p-3 mb-3 rounded-lg bg-red-50 text-red-600 text-sm font-medium border border-red-200 shrink-0">
+              {errorMsg}
+            </div>
+          )}
 
           {/* Listas de Alunos */}
           <div className="flex flex-col gap-4 overflow-y-auto pr-2 custom-scrollbar flex-1 mb-4">
@@ -230,11 +257,11 @@ export const EditarItemModal = ({ isOpen, onClose, onConfirm, nomeAtual, tipoIte
           </div>
 
           <div className="flex gap-3 shrink-0">
-            <button onClick={onClose} className="flex-1 py-3 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold hover:bg-gray-50 transition-colors text-sm">
+            <button onClick={onClose} disabled={saving} className="flex-1 py-3 rounded-xl border-2 border-gray-200 text-gray-600 font-semibold hover:bg-gray-50 transition-colors text-sm disabled:opacity-50">
               Cancelar
             </button>
-            <button onClick={handleConfirm} disabled={!novoNome.trim()} className="flex-1 py-3 rounded-xl bg-[#4493AC] text-white font-semibold hover:bg-[#357a96] transition-colors text-sm disabled:opacity-40 disabled:cursor-not-allowed">
-              Salvar Alterações
+            <button onClick={handleConfirm} disabled={!novoNome.trim() || saving} className="flex-1 py-3 rounded-xl bg-[#4493AC] text-white font-semibold hover:bg-[#357a96] transition-colors text-sm disabled:opacity-40 disabled:cursor-not-allowed">
+              {saving ? 'Salvando...' : 'Salvar Alterações'}
             </button>
           </div>
         </div>

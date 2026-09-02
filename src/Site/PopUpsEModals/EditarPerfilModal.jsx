@@ -160,7 +160,7 @@ const EditarPerfilModal = ({ isOpen, onClose, alunoInfo, onSaved }) => {
                 label="Semestre de Entrada"
                 value={formData.semestre}
                 onChange={(e) => setFormData({ ...formData, semestre: e.target.value })}
-                placeholder="2023"
+                placeholder="Ex: 2024"
               />
               
               <FormSelect
@@ -168,7 +168,7 @@ const EditarPerfilModal = ({ isOpen, onClose, alunoInfo, onSaved }) => {
                 value={formData.semestreNumero}
                 onChange={(e) => setFormData({ ...formData, semestreNumero: e.target.value })}
                 options={semestreNumeroOptions}
-                placeholder="01"
+                placeholder="Selecione o semestre"
               />
             </div>
 
@@ -179,7 +179,7 @@ const EditarPerfilModal = ({ isOpen, onClose, alunoInfo, onSaved }) => {
                 value={formData.cargo}
                 onChange={(e) => setFormData({ ...formData, cargo: e.target.value })}
                 options={cargoOptions}
-                placeholder="Aluno de Graduação III"
+                placeholder="Selecione o cargo"
               />
 
               <FormSelect
@@ -187,7 +187,7 @@ const EditarPerfilModal = ({ isOpen, onClose, alunoInfo, onSaved }) => {
                 value={formData.curso}
                 onChange={(e) => setFormData({ ...formData, curso: e.target.value })}
                 options={cursoOptions}
-                placeholder="Ciência da Computação"
+                placeholder="Selecione o curso"
               />
             </div>
 
@@ -207,7 +207,7 @@ const EditarPerfilModal = ({ isOpen, onClose, alunoInfo, onSaved }) => {
               onChange={(e) => setFormData({ ...formData, trilha: e.target.value })}
               options={trilhas}
               placeholder="Selecione a trilha"
-              ></FormSelect>
+              />
             </div>
 
             {errorMsg && (
