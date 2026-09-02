@@ -104,9 +104,80 @@ describe('Página de Reconhecimento ID (/reconhecimento-id)', () => {
     });
 
     const labInput = screen.getByLabelText(/Laboratório Edge/i);
-    // Tenta digitar letras e caracteres especiais
     fireEvent.change(labInput, { target: { value: 'abc-123.xyz45' } });
-    // Deve conter apenas os números
     expect(labInput).toHaveValue('12345');
+  });
+
+  test('renderiza fotos dos terminais configurados e permite abrir modal de visualizacao ampliada', async () => {
+    global.fetch = jest.fn((url) => {
+      const urlStr = String(url);
+      if (urlStr.includes('/recognition/cameras')) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            cameras: [
+              'Saída Academy',
+              'Entrada Academy',
+              'Saída Pista de Atletismo',
+              'Entrada Pista de Atletismo',
+              'Porta Academy',
+              'Camera Sem Foto',
+            ],
+          }),
+        });
+      }
+      if (urlStr.includes('/users/me/recognition-ids')) {
+        return Promise.resolve({
+          ok: true,
+          json: async () => ({
+            'Saída Academy': '101',
+            'Porta Academy': '105',
+          }),
+        });
+      }
+      return Promise.resolve({ ok: true, json: async () => ({}) });
+    });
+
+    await act(async () => {
+      render(<ReconhecimentoIdPage />);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByText('Saída Academy')).toBeInTheDocument();
+      expect(screen.getByText('Entrada Academy')).toBeInTheDocument();
+      expect(screen.getByText('Saída Pista de Atletismo')).toBeInTheDocument();
+      expect(screen.getByText('Entrada Pista de Atletismo')).toBeInTheDocument();
+      expect(screen.getByText('Porta Academy')).toBeInTheDocument();
+      expect(screen.getByText('Camera Sem Foto')).toBeInTheDocument();
+    });
+
+    // Verifica que as tags de imagem com alt ou src adequados existem
+    const saidaAcademyImg = screen.getByAltText(/Terminal Saída Academy/i);
+    expect(saidaAcademyImg).toBeInTheDocument();
+    expect(saidaAcademyImg.src).toContain('saida-academy.jpg');
+
+    const portaAcademyImg = screen.getByAltText(/Terminal Porta Academy/i);
+    expect(portaAcademyImg).toBeInTheDocument();
+    expect(portaAcademyImg.src).toContain('porta-academy.jpg');
+
+    // Ao clicar na imagem do terminal, deve abrir modal de visualizacao ampliada
+    await act(async () => {
+      fireEvent.click(saidaAcademyImg);
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+      expect(screen.getByText(/Visualização do Terminal/i)).toBeInTheDocument();
+    });
+
+    // Fechar modal
+    const closeBtn = screen.getByLabelText(/Fechar visualização/i);
+    await act(async () => {
+      fireEvent.click(closeBtn);
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
   });
 });
