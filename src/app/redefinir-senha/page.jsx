@@ -180,7 +180,7 @@ function ResetPasswordForm() {
               <label className="block text-sm font-medium text-black" htmlFor="newPassword">
                 Nova senha
               </label>
-              <div className="relative flex items-center w-full h-[42px] bg-white border border-gray-300 rounded-[5px] focus-within:border-[#4493AC] focus-within:ring-1 focus-within:ring-[#4493AC] transition-colors">
+              <div className="relative w-full">
                 <input
                   id="newPassword"
                   type={showPassword ? "text" : "password"}
@@ -188,14 +188,15 @@ function ResetPasswordForm() {
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   required
-                  className="flex-1 h-full pl-3 bg-transparent text-black focus:outline-none rounded-[5px]"
+                  className="w-full h-[42px] pl-3 pr-10 bg-white border border-gray-300 rounded-[5px] text-black focus:outline-none focus:border-[#4493AC] focus:ring-1 focus:ring-[#4493AC] transition-colors text-sm"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="px-3 flex items-center justify-center text-gray-400 hover:text-gray-600 focus:outline-none bg-transparent"
+                  aria-label={showPassword ? "Ocultar nova senha" : "Exibir nova senha"}
+                  className="absolute right-0 inset-y-0 px-3 flex items-center justify-center text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer"
                 >
-                  {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  {showPassword ? <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" /> : <Eye className="h-4 w-4 sm:h-5 sm:w-5" />}
                 </button>
               </div>
             </div>
@@ -204,7 +205,7 @@ function ResetPasswordForm() {
               <label className="block text-sm font-medium text-black" htmlFor="confirmPassword">
                 Confirmar nova senha
               </label>
-              <div className="relative flex items-center w-full h-[42px] bg-white border border-gray-300 rounded-[5px] focus-within:border-[#4493AC] focus-within:ring-1 focus-within:ring-[#4493AC] transition-colors">
+              <div className="relative w-full">
                 <input
                   id="confirmPassword"
                   type={showConfirmPassword ? "text" : "password"}
@@ -212,14 +213,15 @@ function ResetPasswordForm() {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
-                  className="flex-1 h-full pl-3 bg-transparent text-black focus:outline-none rounded-[5px]"
+                  className="w-full h-[42px] pl-3 pr-10 bg-white border border-gray-300 rounded-[5px] text-black focus:outline-none focus:border-[#4493AC] focus:ring-1 focus:ring-[#4493AC] transition-colors text-sm"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="px-3 flex items-center justify-center text-gray-400 hover:text-gray-600 focus:outline-none bg-transparent"
+                  aria-label={showConfirmPassword ? "Ocultar confirmação de senha" : "Exibir confirmação de senha"}
+                  className="absolute right-0 inset-y-0 px-3 flex items-center justify-center text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer"
                 >
-                  {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  {showConfirmPassword ? <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" /> : <Eye className="h-4 w-4 sm:h-5 sm:w-5" />}
                 </button>
               </div>
             </div>

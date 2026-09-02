@@ -201,12 +201,13 @@ const CriarContaModal = ({ isOpen, onClose, onUserCreated }) => {
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   placeholder="Crie sua senha de acesso"
                   required
-                  className="w-full px-4 py-2.5 bg-transparent text-black text-sm focus:outline-none rounded-xl"
+                  className="w-full pl-4 pr-10 py-2.5 bg-transparent text-black text-sm focus:outline-none rounded-xl"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="px-3 text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer"
+                  aria-label={showPassword ? "Ocultar senha" : "Exibir senha"}
+                  className="absolute right-0 inset-y-0 px-3 flex items-center justify-center text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -223,12 +224,13 @@ const CriarContaModal = ({ isOpen, onClose, onUserCreated }) => {
                   onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                   placeholder="Confirme sua senha de acesso"
                   required
-                  className="w-full px-4 py-2.5 bg-transparent text-black text-sm focus:outline-none rounded-xl"
+                  className="w-full pl-4 pr-10 py-2.5 bg-transparent text-black text-sm focus:outline-none rounded-xl"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="px-3 text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer"
+                  aria-label={showConfirmPassword ? "Ocultar confirmação de senha" : "Exibir confirmação de senha"}
+                  className="absolute right-0 inset-y-0 px-3 flex items-center justify-center text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer"
                 >
                   {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
