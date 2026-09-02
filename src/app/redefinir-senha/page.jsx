@@ -95,7 +95,8 @@ function ResetPasswordForm() {
         : 'Sua senha foi redefinida com sucesso!'
       );
 
-      // Atualiza token e usuário salvos no localStorage se for primeiro acesso
+      // Primeiro acesso: persiste o novo token e marca o usuário local como já
+      // logado, para o fluxo de troca obrigatória de senha não disparar de novo.
       if (isFirstAccess) {
         if (data.access_token) {
           localStorage.setItem('ponto_ai_token', data.access_token);
@@ -139,7 +140,6 @@ function ResetPasswordForm() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 font-sans p-4 sm:p-6">
       <div className="w-full max-w-md p-6 sm:p-8 bg-white border border-gray-200 rounded-2xl shadow-sm">
         
-        {/* Header */}
         <div className="text-center mb-8 flex flex-col items-center justify-center">
           <div className="flex justify-center mb-3">
             <div className="p-3 bg-blue-50 text-[#4493AC] rounded-full">
@@ -162,7 +162,6 @@ function ResetPasswordForm() {
           )}
         </div>
 
-        {/* Message Banner */}
         {message && (
           <div className={`mb-6 p-4 border rounded-lg flex items-start ${isError ? 'bg-red-50 border-red-200' : 'bg-green-50 border-green-200'}`}>
             {isError ? (
@@ -174,11 +173,9 @@ function ResetPasswordForm() {
           </div>
         )}
 
-        {/* Form */}
         {!isSuccess && canShowForm && (
           <form className="space-y-5" onSubmit={handleSubmit}>
             
-            {/* New Password Input */}
             <div className="space-y-1">
               <label className="block text-sm font-medium text-black" htmlFor="newPassword">
                 Nova senha
@@ -203,7 +200,6 @@ function ResetPasswordForm() {
               </div>
             </div>
 
-            {/* Confirm Password Input */}
             <div className="space-y-1">
               <label className="block text-sm font-medium text-black" htmlFor="confirmPassword">
                 Confirmar nova senha
@@ -228,7 +224,6 @@ function ResetPasswordForm() {
               </div>
             </div>
 
-            {/* Submit Button */}
             <div className="flex justify-center pt-2">
               <button
                 type="submit"

@@ -55,7 +55,7 @@ const MonitoramentoAoVivo = () => {
     [forceLogout]
   );
 
-  // Resolve photo_url relativo para URL absoluta com token
+  // Converte photo_url relativo em URL absoluta com token na query (<img> não envia header Authorization)
   const resolvePhotoUrl = useCallback(
     (path, tk) => (path && path.startsWith('/') ? `${apiBase}${path}?token=${tk}` : path),
     [apiBase]
@@ -69,7 +69,6 @@ const MonitoramentoAoVivo = () => {
       const token = localStorage.getItem('ponto_ai_token');
       if (!token) return;
 
-      // 1. Ocupação em tempo real
       const resPresence = await authFetch(`${apiBase}/ponto/presence/today`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -81,7 +80,6 @@ const MonitoramentoAoVivo = () => {
         }
       }
 
-      // 2. Últimas Entradas
       const resPonto = await authFetch(`${apiBase}/ponto/ultimas-entradas?limit=5`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -95,7 +93,6 @@ const MonitoramentoAoVivo = () => {
         }
       }
 
-      // 3. Últimas Saídas (via feed)
       const resFeed = await authFetch(`${apiBase}/ponto/feed/latest?limit=5`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -222,7 +219,6 @@ const MonitoramentoAoVivo = () => {
           {userData?.admin ? (
             <>
               <div className="flex flex-col gap-6 md:gap-8 mb-8">
-                {/* Últimas Entradas (Superior) */}
                 <div className="w-full bg-white rounded-3xl border-2 border-gray-300 p-4 sm:p-6 shadow-sm">
                   <UltimasEntradas
                     entradas={ultimasEntradas}
@@ -230,7 +226,6 @@ const MonitoramentoAoVivo = () => {
                   />
                 </div>
 
-                {/* Últimas Saídas (Inferior) */}
                 <div className="w-full bg-white rounded-3xl border-2 border-gray-300 p-4 sm:p-6 shadow-sm">
                   <UltimasSaidas
                     saidas={ultimasSaidas}
@@ -243,7 +238,6 @@ const MonitoramentoAoVivo = () => {
             <HorasSection userData={userData} />
           )}
 
-          {/* Modal de Detalhes do Ponto */}
           {selectedPonto && (
             <PontoDetailModal ponto={selectedPonto} onClose={() => setSelectedPonto(null)} />
           )}

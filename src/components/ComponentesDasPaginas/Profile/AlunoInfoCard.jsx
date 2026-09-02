@@ -14,7 +14,7 @@ const AlunoInfoCard = ({ alunoInfo, onSaved }) => {
     <>
       <div className="bg-white rounded-3xl p-8 shadow-sm">
         <div className="flex flex-col md:flex-row items-start gap-8">
-          {/* Foto do perfil (protegida contra exclusão) */}
+          {/* Foto do perfil */}
           <div className="relative shrink-0">
             <UserAvatar
               src={alunoInfo?.rawUser?.profile_image}

@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import Home from '@/app/page';
 
-// Mock do useRouter e usePathname estático para evitar loop infinito
+// usePathname fixo: um pathname mutável dispara loop infinito no guard de autenticação
 const mockRouter = { push: jest.fn() };
 jest.mock('next/navigation', () => ({
   useRouter() {
@@ -20,7 +20,6 @@ describe('Página Inicial do PontoAI', () => {
   });
 
   test('Deve buscar e renderizar a home do Admin com feeds de Ultimas Entradas e Saidas, sem renderizar HorasSection de aluno', async () => {
-    // Simula um usuário ADMIN logado
     const store = {
       'ponto_ai_token': 'fake-admin-token',
       'ponto_ai_user': JSON.stringify({ id: 1, admin: true, name: 'Admin User' })
@@ -34,7 +33,6 @@ describe('Página Inicial do PontoAI', () => {
       writable: true
     });
 
-    // GIVEN: API mockada
     global.fetch.mockImplementation((url) => {
       const urlStr = typeof url === 'string' ? url : (url?.url || String(url));
       if (urlStr.includes('/ponto/presence/today')) {
@@ -55,10 +53,8 @@ describe('Página Inicial do PontoAI', () => {
       return Promise.resolve({ ok: true, json: async () => [] });
     });
 
-    // WHEN: Renderiza a página Home
     render(<Home />);
 
-    // THEN: A página deve mostrar as seções de Últimas Entradas e Últimas Saídas do Admin
     await waitFor(() => {
       expect(screen.getByText('Últimas Entradas')).toBeInTheDocument();
       expect(screen.getByText('Últimas Saídas')).toBeInTheDocument();
@@ -66,13 +62,11 @@ describe('Página Inicial do PontoAI', () => {
       expect(screen.getByText('Maria')).toBeInTheDocument();
     });
 
-    // E NÃO deve renderizar o painel do estudante
     expect(screen.queryByText(/Acompanhe seu registro de ponto/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/Primeira Entrada Hoje/i)).not.toBeInTheDocument();
   });
 
   test('Deve renderizar a home do Aluno com HorasSection e sem feeds do Admin', async () => {
-    // Simula um usuário ALUNO logado
     const store = {
       'ponto_ai_token': 'fake-student-token',
       'ponto_ai_user': JSON.stringify({ id: 2, admin: false, name: 'Aluno User' })

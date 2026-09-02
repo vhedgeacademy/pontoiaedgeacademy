@@ -76,7 +76,6 @@ const PerfilAdministradorContent = () => {
 
       <div className="ml-0 md:ml-20 min-h-screen overflow-y-auto bg-gray-50 pt-16 md:pt-0">
         <div className="p-4 sm:p-6 md:p-8 max-w-5xl mx-auto space-y-6 sm:space-y-8">
-          {/* Header com Navegação para /search */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <button
               onClick={() => router.push('/search')}
@@ -88,10 +87,8 @@ const PerfilAdministradorContent = () => {
             <h1 className="text-2xl sm:text-3xl font-bold text-[#243D6D]">Perfil do Administrador</h1>
           </div>
 
-          {/* Card Principal com Dados Cadastrais */}
           <div className="bg-white rounded-3xl p-4 sm:p-6 md:p-8 shadow-sm border border-gray-100">
             <div className="flex flex-col md:flex-row items-start gap-8">
-              {/* Foto de Perfil / Avatar */}
               <div className="relative shrink-0">
                 <UserAvatar
                   src={adminData.profile_image}
@@ -102,7 +99,6 @@ const PerfilAdministradorContent = () => {
                 />
               </div>
 
-              {/* Informações Textuais */}
               <div className="flex-1 w-full space-y-6">
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <div>

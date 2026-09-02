@@ -40,15 +40,12 @@ describe('Configuracoes Page - Remocao de Associar Alunos sem Turma', () => {
   test('renderiza a pagina de configuracoes sem o botao de associar alunos sem turma', () => {
     render(<Configuracoes />);
 
-    // Deve exibir o titulo principal
     expect(screen.getByRole('heading', { name: /configurações/i })).toBeInTheDocument();
 
-    // As colunas de Turmas, Cargos e Cursos devem estar presentes
     expect(screen.getByTestId('config-section-turmas')).toBeInTheDocument();
     expect(screen.getByTestId('config-section-cargos')).toBeInTheDocument();
     expect(screen.getByTestId('config-section-cursos')).toBeInTheDocument();
 
-    // O botao e textos de Associar Alunos sem Turma NAO devem existir
     expect(screen.queryByText(/associar alunos sem turma/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/pendente/i)).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /associar alunos/i })).not.toBeInTheDocument();

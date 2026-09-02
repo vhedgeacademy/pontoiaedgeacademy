@@ -32,11 +32,10 @@ describe('Supressão de Duplicidade de Ícone de Revelar Senha', () => {
     expect(newPassInput).toHaveAttribute('type', 'password');
     expect(confirmPassInput).toHaveAttribute('type', 'password');
 
-    // Encontra os botões de alternar senha dentro dos containers de input
+    // Os botões de alternar visibilidade não têm nome acessível; identifica-os pelo ícone svg
     const toggleButtons = screen.getAllByRole('button').filter((btn) => btn.querySelector('svg'));
     expect(toggleButtons.length).toBe(2);
 
-    // Clica no primeiro botão e alterna para type="text"
     fireEvent.click(toggleButtons[0]);
     expect(newPassInput).toHaveAttribute('type', 'text');
     expect(confirmPassInput).toHaveAttribute('type', 'password');

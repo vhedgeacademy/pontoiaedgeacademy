@@ -16,7 +16,6 @@ export function useAdminGuard() {
     try {
       const user = JSON.parse(userStr);
       if (!user.admin) {
-        // Redireciona alunos não autorizados para a home
         router.push('/');
       }
     } catch (e) {

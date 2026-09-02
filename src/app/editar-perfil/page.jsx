@@ -45,9 +45,9 @@ const EditarPerfil = () => {
       setUserId(user.id);
       
       try {
-        // `GET /users/me`, e não `/users/{id}` + `/turmas` + `/cargos`: os três
-        // exigem admin, então para o aluno — o dono desta página — devolviam 403
-        // e o formulário nunca populava. O /me já traz turma e cargo resolvidos.
+        // `GET /users/me`, e não `/users/{id}` + `/turmas` + `/cargos`: essas
+        // rotas exigem admin e devolvem 403 para o aluno, dono desta página.
+        // O /me já traz turma e cargo resolvidos.
         const userRes = await fetch(`${getApiBase()}/users/me`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -69,8 +69,6 @@ const EditarPerfil = () => {
             confirmPassword: ''
           });
         } else {
-          // Sem este ramo o erro era invisível: a página renderizava campos
-          // vazios e o usuário só descobria ao tentar salvar.
           setStatusMessage({
             type: 'error',
             text: 'Não foi possível carregar seus dados. Faça login novamente.'
@@ -110,7 +108,6 @@ const EditarPerfil = () => {
       return;
     }
 
-    // Validação de alteração de senha
     if (formData.password || formData.currentPassword || formData.confirmPassword) {
       if (!formData.currentPassword) {
         setStatusMessage({ type: 'error', text: 'Informe sua senha atual para alterar a senha.' });
@@ -140,7 +137,7 @@ const EditarPerfil = () => {
     setIsSubmitting(true);
 
     try {
-      // 1. Se informou nova senha, altera via /auth/change-password
+      // Senha primeiro: se a senha atual estiver errada, nada do perfil é alterado
       if (formData.password) {
         const passRes = await fetch(`${getApiBase()}/auth/change-password`, {
           method: 'POST',
@@ -163,11 +160,9 @@ const EditarPerfil = () => {
         }
       }
 
-      // 2. Atualizar perfil via /users/me
-      //
-      // `profile_image` só entra quando há foto. Enviá-lo sempre significava
-      // mandar `null` quando o estado não carregou — e o backend trata null
-      // como "remover", então salvar o nome apagava o avatar do usuário.
+      // `profile_image` só entra no payload quando há foto: o backend trata
+      // `null` como remoção, então enviá-lo sempre apagaria o avatar quando
+      // o estado ainda não carregou.
       const perfilPayload = { name: formData.name.trim() };
       if (formData.profileImage) {
         perfilPayload.profile_image = formData.profileImage;
@@ -185,7 +180,6 @@ const EditarPerfil = () => {
       if (profileRes.ok) {
         const updatedUser = await profileRes.json();
         
-        // Atualizar localStorage
         const userStr = localStorage.getItem('ponto_ai_user');
         if (userStr) {
           const oldUser = JSON.parse(userStr);
@@ -228,7 +222,6 @@ const EditarPerfil = () => {
           )}
 
           <form onSubmit={handleSubmit} className="bg-white rounded-3xl border border-gray-100 shadow-sm p-4 sm:p-8 md:p-10 space-y-6 sm:space-y-8">
-            {/* Foto de Perfil */}
             <div className="flex flex-col items-center pb-6 border-b border-gray-100">
               <div className="relative w-32 h-32 mb-4">
                 <UserAvatar
@@ -246,7 +239,6 @@ const EditarPerfil = () => {
               <p className="text-xs text-gray-400 mt-2">Formatos permitidos: JPG, PNG. Tamanho máximo: 1MB.</p>
             </div>
 
-            {/* Informações Pessoais */}
             <div className="space-y-4">
               <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
                 <UserIcon className="w-5 h-5 text-[#4493AC]" />
@@ -294,7 +286,6 @@ const EditarPerfil = () => {
               )}
             </div>
 
-            {/* Segurança e Alteração de Senha */}
             <div className="space-y-4 pt-4 border-t border-gray-100">
               <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
                 <Lock className="w-5 h-5 text-[#4493AC]" />

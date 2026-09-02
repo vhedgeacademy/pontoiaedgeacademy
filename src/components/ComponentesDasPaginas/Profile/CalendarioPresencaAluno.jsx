@@ -4,11 +4,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Calendar as CalendarIcon, Clock, LogIn, LogOut, ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react';
 import { getApiBase } from '@/config/api';
 
-// `toISOString()` devolve a data em UTC, e este calendário é de parede local.
-// Em UTC−3 às 21:30 de 14/08 ele apontava 15/08: o calendário abria no dia
-// seguinte e mostrava "nenhum registro", enquanto o card de horas logo acima
-// (calculado no servidor) mostrava as horas do dia 14. Montar a partir dos
-// componentes locais mantém os dois de acordo.
+// Serializa a data no fuso local (YYYY-MM-DD). Não usar `toISOString()`:
+// ela devolve UTC e, perto da virada do dia, apontaria o dia errado —
+// divergindo dos cards de horas calculados no servidor.
 const toLocalDateString = (date) => {
   const ano = date.getFullYear();
   const mes = String(date.getMonth() + 1).padStart(2, '0');
@@ -38,10 +36,8 @@ const CalendarioPresencaAluno = ({ userId }) => {
         const data = await res.json();
         setDateRecord(data);
       } else {
-        // Limpar é parte do tratamento de erro: sem isso os cards seguiam
-        // mostrando os números da data anterior sob o cabeçalho da nova, e um
-        // 401 ao navegar de 10/08 para 11/08 fazia o admin ler a frequência de
-        // um dia como sendo a de outro.
+        // Limpa o registro anterior: sem isso os cards continuariam mostrando
+        // os números da data antiga sob o cabeçalho da nova.
         setDateRecord(null);
         const err = await res.json();
         setError(err.detail || 'Erro ao carregar dados do calendário.');
@@ -62,10 +58,9 @@ const CalendarioPresencaAluno = ({ userId }) => {
   }, [selectedDate, fetchDateRecord]);
 
   const changeDateByDays = (days) => {
-    // Interpretar como meia-noite local e serializar por toISOString (UTC) não
-    // é ida e volta: em UTC+1/+2 o "próximo dia" devolvia a mesma string, o
-    // React não re-renderizava e o botão virava no-op — e o "dia anterior"
-    // pulava dois dias. `toLocalDateString` fecha o ciclo no mesmo fuso.
+    // Lê meia-noite local e serializa com `toLocalDateString` para a ida e
+    // volta ficar no mesmo fuso; passar por UTC deslocaria o dia em alguns
+    // fusos e quebraria a navegação de +1/-1.
     const current = new Date(selectedDate + 'T00:00:00');
     current.setDate(current.getDate() + days);
     setSelectedDate(toLocalDateString(current));

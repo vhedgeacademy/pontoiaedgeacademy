@@ -16,12 +16,10 @@ import { getApiBase } from '@/config/api';
 
 const HorasSection = ({ userData }) => {
   const router = useRouter();
-  // `useRouter()` não garante identidade estável entre renders. Enquanto
-  // `handleAuthFailure` dependia do objeto, ele era recriado a cada render — e
-  // com ele `fetchDashboard`, que é dependência do efeito de carga. Cada
-  // resposta re-renderizava e disparava o efeito outra vez: 90 chamadas em 1,5s
-  // numa tela que faz 2. O laço nunca deixava `loading` assentar, e era essa a
-  // causa das falhas intermitentes desta suíte.
+  // `useRouter()` não garante identidade estável entre renders: usar o objeto como
+  // dependência recriaria `handleAuthFailure`/`fetchDashboard` e redispararia o
+  // efeito de carga a cada render (loop de fetches). O ref dá acesso ao router
+  // atual sem entrar nas listas de dependências.
   const routerRef = useRef(router);
   routerRef.current = router;
   const [loading, setLoading] = useState(true);
@@ -171,7 +169,6 @@ const HorasSection = ({ userData }) => {
   const isCumprindo = dashboard.status_jornada === 'Cumprindo Horas';
   const isEncerrada = dashboard.status_jornada === 'Jornada Encerrada';
 
-  // Parser para porcentagem da meta
   const parseHoursToFloat = (hhmm) => {
     if (!hhmm) return 0;
     const parts = hhmm.split(':');

@@ -19,14 +19,17 @@ const PontoDetailModal = ({ ponto, onClose }) => {
   if (!ponto) return null;
 
   const isEntrada = ponto.event_type === 'Entrada';
-  const fotoExibicao =
-    ponto.photo_url ||
-    ponto.foto ||
-    (ponto.foto_base64
+
+  // Foto do Facedoor / Snapshot do Terminal Facial capturada durante o match
+  const fotoFacedoor =
+    ponto.foto_base64
       ? ponto.foto_base64.startsWith('data:')
         ? ponto.foto_base64
         : `data:image/jpeg;base64,${ponto.foto_base64}`
-      : null);
+      : null;
+
+  // Foto de perfil exclusiva para o Avatar do usuário
+  const fotoPerfil = ponto.photo_url || ponto.foto || null;
 
   return (
     <div
@@ -39,7 +42,7 @@ const PontoDetailModal = ({ ponto, onClose }) => {
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in"
     >
       <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl border border-gray-100 overflow-hidden relative">
-        {/* Header */}
+        {/* Cabeçalho */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 bg-gray-50">
           <div className="flex items-center gap-3">
             <span
@@ -62,12 +65,12 @@ const PontoDetailModal = ({ ponto, onClose }) => {
           </button>
         </div>
 
-        {/* Content */}
+        {/* Conteúdo */}
         <div className="p-6 space-y-6">
-          {/* User Info */}
+          {/* Dados do usuário */}
           <div className="flex items-center gap-4 p-4 bg-[#F4F9FB] rounded-2xl border border-[#D4E8ED]">
             <UserAvatar
-              src={fotoExibicao}
+              src={fotoPerfil}
               name={ponto.nome}
               className="w-16 h-16 border-2 border-white shadow"
               bgClassName="bg-[#D4E8ED] text-[#4493AC]"
@@ -79,7 +82,7 @@ const PontoDetailModal = ({ ponto, onClose }) => {
             </div>
           </div>
 
-          {/* Details Grid */}
+          {/* Grade de detalhes */}
           <div className="grid grid-cols-2 gap-4">
             <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
               <Clock className="w-5 h-5 text-[#4493AC]" />
@@ -106,24 +109,34 @@ const PontoDetailModal = ({ ponto, onClose }) => {
             </div>
           </div>
 
-          {/* Photo Preview if available */}
-          {fotoExibicao && (
-            <div className="space-y-2">
-              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Foto do Reconhecimento / Registro
-              </p>
-              <div className="w-full h-48 bg-gray-100 rounded-2xl overflow-hidden flex items-center justify-center border border-gray-200">
+          {/* Prévia da foto do Facedoor / Terminal Facial */}
+          <div className="space-y-2">
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              Foto do Reconhecimento / Registro
+            </p>
+            {fotoFacedoor ? (
+              <div className="w-full h-56 bg-slate-950 rounded-2xl overflow-hidden flex items-center justify-center border border-gray-200 shadow-inner">
                 <img
-                  src={fotoExibicao}
-                  alt="Registro Facial"
-                  className="w-full h-full object-cover"
+                  src={fotoFacedoor}
+                  alt="Foto do Reconhecimento Facial (Facedoor)"
+                  className="max-h-full max-w-full object-contain"
                 />
               </div>
-            </div>
-          )}
+            ) : (
+              <div className="w-full h-32 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center text-gray-400 gap-1.5 p-4 text-center">
+                <Camera className="w-6 h-6 text-gray-300" />
+                <span className="text-xs font-medium text-gray-500">
+                  Nenhuma captura facial transmitida pelo terminal
+                </span>
+                <span className="text-[11px] text-gray-400">
+                  O ponto foi autenticado via ID no terminal facial.
+                </span>
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Footer */}
+        {/* Rodapé */}
         <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end">
           <button
             onClick={onClose}

@@ -72,7 +72,7 @@ const RankingPage = () => {
     fetchRanking(period, selectedDate);
   }, [period, selectedDate, fetchRanking]);
 
-  // Estudantes com horas trabalhadas para o podium
+  // Só entra no pódio quem tem horas registradas no período
   const activeTop3 = rankingData.filter((item) => (item.total_seconds || 0) > 0).slice(0, 3);
 
   return (
@@ -99,12 +99,10 @@ const RankingPage = () => {
             setSelectedDate={setSelectedDate}
             periodLabel={periodLabel}
           >
-            {/* Podium dos 3 primeiros com horas registradas */}
             {!loading && activeTop3.length > 0 && (
               <RankingPodium top3={activeTop3} />
             )}
 
-            {/* Tabela completa com todos os alunos */}
             <RankingTable data={rankingData} loading={loading} />
           </RankingCard>
         </div>

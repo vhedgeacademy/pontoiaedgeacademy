@@ -15,7 +15,6 @@ const TRILHAS = [
   { value: 'Embarcados', label: 'Sistemas Embarcados' }
 ];
 
-// ─── chip de filtro ────────────────────────────────────────────────────────────
 const FilterChip = ({ label, active, onClick }) => (
   <button
     type="button"
@@ -30,7 +29,6 @@ const FilterChip = ({ label, active, onClick }) => (
   </button>
 );
 
-// ─── card do administrador ───────────────────────────────────────────────────────
 const AdminCard = ({ admin }) => {
   const router = useRouter();
   const isInactive = admin.is_active === false;
@@ -71,7 +69,6 @@ const AdminCard = ({ admin }) => {
   );
 };
 
-// ─── card do aluno ─────────────────────────────────────────────────────────────
 const AlunoCard = ({ aluno, turmas, cargos }) => {
   const router = useRouter();
   const isInactive = aluno.is_active === false;
@@ -115,7 +112,6 @@ const AlunoCard = ({ aluno, turmas, cargos }) => {
   );
 };
 
-// ─── página principal ──────────────────────────────────────────────────────────
 const SearchPage = () => {
   const router = useRouter();
 
@@ -182,7 +178,6 @@ const SearchPage = () => {
     setSearchTerm('');
   };
 
-  // Filtragem geral
   const filteredUsers = users.filter(u => {
     const term = searchTerm.toLowerCase();
     const matchSearch =
@@ -222,12 +217,10 @@ const SearchPage = () => {
       <div className="ml-0 md:ml-20 min-h-screen overflow-y-auto bg-gray-50 pt-16 md:pt-0">
         <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto">
 
-          {/* ── cabeçalho ── */}
           <div className="flex items-center justify-between mb-6 sm:mb-8">
             <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-[#4493AC]">Buscar Usuário</h1>
           </div>
 
-          {/* ── barra de pesquisa + botão filtros ── */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 mb-6">
             <div className="relative flex-1">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -273,10 +266,8 @@ const SearchPage = () => {
             </div>
           </div>
 
-          {/* ── painel de filtros (expansível) ── */}
           {showFilters && (
             <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-8 space-y-5">
-              {/* Status do Usuário */}
               <div>
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Status do Usuário</p>
                 <div className="flex flex-wrap gap-2">
@@ -298,7 +289,6 @@ const SearchPage = () => {
                 </div>
               </div>
 
-              {/* Turma */}
               <div>
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Turma (Alunos)</p>
                 <div className="flex flex-wrap gap-2">
@@ -313,7 +303,6 @@ const SearchPage = () => {
                 </div>
               </div>
 
-              {/* Trilha */}
               <div>
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Trilha (Alunos)</p>
                 <div className="flex flex-wrap gap-2">
@@ -328,7 +317,6 @@ const SearchPage = () => {
                 </div>
               </div>
 
-              {/* Cargo */}
               <div>
                 <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Cargo (Alunos)</p>
                 <div className="flex flex-wrap gap-2">
@@ -345,7 +333,6 @@ const SearchPage = () => {
             </div>
           )}
 
-          {/* ── contador de resultados ── */}
           <p className="text-sm text-gray-500 mb-6">
             {filteredUsers.length === users.length
               ? `${users.length} usuários cadastrados`
@@ -374,7 +361,6 @@ const SearchPage = () => {
             </div>
           ) : filteredUsers.length > 0 ? (
             <div className="space-y-10">
-              {/* ── SEÇÃO: ADMINISTRADORES ── */}
               {adminList.length > 0 && (
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
@@ -393,7 +379,6 @@ const SearchPage = () => {
                 </div>
               )}
 
-              {/* ── SEÇÃO: ALUNOS ── */}
               {studentList.length > 0 && (
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">

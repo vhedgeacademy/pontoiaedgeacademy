@@ -43,7 +43,7 @@ const GaleriaAluno = ({ userId }) => {
     fetchFaces();
   };
 
-  // <img> não envia header Authorization: autentica via query token (mesmo padrão do MJPEG).
+  // <img> não envia header Authorization: a rota de fotos autentica pelo token na query string.
   const srcFor = (path) => `${getApiBase()}${path}?token=${token}`;
 
   return (

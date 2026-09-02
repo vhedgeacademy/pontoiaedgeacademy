@@ -93,7 +93,6 @@ const EditarPerfilModal = ({ isOpen, onClose, alunoInfo, onSaved }) => {
         body: JSON.stringify(academicPayload)
       });
 
-      // 2. Atualizar nome se modificado
       if (formData.nomeCompleto && formData.nomeCompleto !== alunoInfo.nome) {
         await fetch(`${getApiBase()}/users/${userId}`, {
           method: 'PUT',

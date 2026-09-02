@@ -55,7 +55,7 @@ const Sidebar = () => {
   return (
     <>
       {/* ========================================================================= */}
-      {/* 1. MOBILE TOP HEADER (Visível apenas em telas menores que md) */}
+      {/* 1. Cabeçalho superior mobile (visível apenas em telas menores que md) */}
       {/* ========================================================================= */}
       <header className="md:hidden fixed top-0 left-0 right-0 h-16 bg-white border-b border-gray-200 z-40 px-4 flex items-center justify-between shadow-xs">
         <div className="flex items-center gap-3">
@@ -95,7 +95,7 @@ const Sidebar = () => {
       </header>
 
       {/* ========================================================================= */}
-      {/* 2. MOBILE DRAWER SLIDE-OVER (Visível quando mobileMenuOpen for true) */}
+      {/* 2. Drawer mobile (visível quando mobileMenuOpen for true) */}
       {/* ========================================================================= */}
       {mobileMenuOpen && (
         <div className="md:hidden fixed inset-0 z-50 flex">
@@ -243,7 +243,7 @@ const Sidebar = () => {
       )}
 
       {/* ========================================================================= */}
-      {/* 3. DESKTOP SIDEBAR (Visível apenas em telas md ou maiores) */}
+      {/* 3. Sidebar desktop (visível apenas em telas md ou maiores) */}
       {/* ========================================================================= */}
       <aside className="hidden md:flex fixed top-0 left-0 h-screen w-20 hover:w-64 bg-white border-r border-gray-200 z-50 flex-col justify-between py-6 px-3 transition-all duration-300 group shadow-sm hover:shadow-xl">
         {/* Topo / Logo */}

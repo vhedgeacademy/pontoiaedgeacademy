@@ -54,7 +54,6 @@ describe('CriarContaModal Component', () => {
     expect(screen.getByPlaceholderText('Crie sua senha de acesso')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Confirme sua senha de acesso')).toBeInTheDocument();
 
-    // Garante que campos academicos e extras NAO existem
     expect(screen.queryByPlaceholderText(/Sua matrícula/i)).not.toBeInTheDocument();
     expect(screen.queryByText('Dados Acadêmicos')).not.toBeInTheDocument();
     expect(screen.queryByText('Ano de Ingresso')).not.toBeInTheDocument();

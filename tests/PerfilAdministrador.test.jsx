@@ -51,7 +51,7 @@ describe('PerfilAdministrador Page', () => {
     expect(screen.getAllByText('chefe@edge.ufal.br')[0]).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /remover/i })).not.toBeInTheDocument();
 
-    // NÃO deve renderizar seções exclusivas de aluno como Calendário de Presença ou Banco de Horas
+    // Calendário, banco de horas e galeria são seções exclusivas do perfil de aluno
     expect(screen.queryByText(/calendário de presença/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/exportar banco de horas/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/galeria do aluno/i)).not.toBeInTheDocument();

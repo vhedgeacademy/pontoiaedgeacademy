@@ -28,11 +28,9 @@ describe('Responsive Navigation & Mobile Drawer (Sidebar)', () => {
       render(<Sidebar />);
     });
 
-    // Botão de menu hamburguer mobile
     const menuButton = screen.getByRole('button', { name: /abrir menu/i });
     expect(menuButton).toBeInTheDocument();
 
-    // Logotipo e nome da aplicação no header mobile
     expect(screen.getAllByAltText('Logo Edge').length).toBeGreaterThanOrEqual(1);
   });
 
@@ -43,22 +41,18 @@ describe('Responsive Navigation & Mobile Drawer (Sidebar)', () => {
 
     const menuButton = screen.getByRole('button', { name: /abrir menu/i });
 
-    // Clica para abrir o menu mobile
     await act(async () => {
       fireEvent.click(menuButton);
     });
 
-    // Drawer aberto deve exibir o botão de fechar e dados do usuário
     const closeButton = screen.getByRole('button', { name: /fechar menu/i });
     expect(closeButton).toBeInTheDocument();
     expect(screen.getAllByText('aluno.mobile@edge.ufal.br').length).toBeGreaterThanOrEqual(1);
 
-    // Clica para fechar o menu mobile
     await act(async () => {
       fireEvent.click(closeButton);
     });
 
-    // Botão de fechar não deve estar mais visível/ativo
     expect(screen.queryByRole('button', { name: /fechar menu/i })).not.toBeInTheDocument();
   });
 
@@ -72,7 +66,7 @@ describe('Responsive Navigation & Mobile Drawer (Sidebar)', () => {
       fireEvent.click(menuButton);
     });
 
-    // Clica no link Reconhecimento ID dentro do drawer
+    // O link aparece duplicado (sidebar desktop + drawer); o último é o do drawer
     const recIdButtons = screen.getAllByRole('button', { name: /reconhecimento id/i });
     expect(recIdButtons.length).toBeGreaterThan(0);
 
