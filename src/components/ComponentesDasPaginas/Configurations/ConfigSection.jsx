@@ -11,7 +11,6 @@ const ConfigSection = ({ title, endpoint, tipoItem = 'item', refreshKey, onUpdat
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Helper para headers
   const getHeaders = () => {
     const token = typeof window !== 'undefined' ? localStorage.getItem('ponto_ai_token') : '';
     return {
@@ -25,7 +24,6 @@ const ConfigSection = ({ title, endpoint, tipoItem = 'item', refreshKey, onUpdat
       const res = await fetch(`${getApiBase()}/${endpoint}`, { headers: getHeaders() });
       if (res.ok) {
         const data = await res.json();
-        // Mapeia do backend (id, name) para o card (id, title, count)
         setItems(data.map(item => ({ id: item.id, title: item.name, count: item.student_count || 0 })));
       }
     } catch (e) {
@@ -75,7 +73,6 @@ const ConfigSection = ({ title, endpoint, tipoItem = 'item', refreshKey, onUpdat
       let renameOk = true;
       let syncOk = true;
 
-      // 1. Rename request
       if (novoNome) {
         const resRename = await fetch(`${getApiBase()}/${endpoint}/${id}`, {
           method: 'PUT',
@@ -85,7 +82,6 @@ const ConfigSection = ({ title, endpoint, tipoItem = 'item', refreshKey, onUpdat
         renameOk = resRename.ok;
       }
 
-      // 2. Batch sync request
       if (studentIds !== undefined && studentIds !== null) {
         const resSync = await fetch(`${getApiBase()}/${endpoint}/${id}/students`, {
           method: 'PUT',
@@ -99,7 +95,7 @@ const ConfigSection = ({ title, endpoint, tipoItem = 'item', refreshKey, onUpdat
         console.error(`Erro: Alguma das requisições de atualização falhou em ${endpoint}`);
       }
 
-      // 3. Refresh completely to update counts properly
+      // Refaz o fetch completo: os contadores de alunos só ficam corretos vindo do backend.
       await fetchItems();
       onUpdate?.();
     } catch (e) {

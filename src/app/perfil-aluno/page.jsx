@@ -107,7 +107,6 @@ const PerfilAlunoContent = () => {
       <div className="ml-0 md:ml-20 min-h-screen overflow-y-auto bg-gray-50 pt-16 md:pt-0">
         <div className="p-4 sm:p-6 md:p-8 max-w-6xl mx-auto space-y-6 sm:space-y-8">
           
-          {/* Header com Navegação para /search */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <button
               onClick={() => router.push('/search')}
@@ -119,7 +118,6 @@ const PerfilAlunoContent = () => {
             <h1 className="text-2xl sm:text-3xl font-bold text-[#243D6D]">Perfil do Estudante</h1>
           </div>
 
-          {/* Cards de Métricas no Topo: Horas Hoje & Horas Semana Atual */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex items-center gap-5">
               <div className="w-14 h-14 rounded-2xl bg-[#EAF4F8] flex items-center justify-center text-[#4493AC] shrink-0">
@@ -142,10 +140,8 @@ const PerfilAlunoContent = () => {
             </div>
           </div>
 
-          {/* Card de Informações Cadastrais */}
           <AlunoInfoCard alunoInfo={alunoInfo} onSaved={fetchData} />
 
-          {/* Calendário de Presença */}
           <CalendarioPresencaAluno userId={id} />
         </div>
       </div>

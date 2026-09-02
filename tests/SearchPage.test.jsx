@@ -96,11 +96,9 @@ describe('SearchPage — Busca de Usuários com Filtros e Seções', () => {
       expect(screen.getByText('Carlos Admin Ativo')).toBeInTheDocument();
     });
 
-    // Clicar em filtros para abrir o painel se necessário ou usar chips de status
     const btnFiltros = screen.getByRole('button', { name: /filtros/i });
     fireEvent.click(btnFiltros);
 
-    // Clicar no filtro "Usuários Ativos"
     const chipAtivos = screen.getByRole('button', { name: /usuários ativos|ativos/i });
     fireEvent.click(chipAtivos);
 
@@ -109,7 +107,6 @@ describe('SearchPage — Busca de Usuários com Filtros e Seções', () => {
     expect(screen.queryByText('Bruna Admin Inativa')).not.toBeInTheDocument();
     expect(screen.queryByText('Diego Aluno Inativo')).not.toBeInTheDocument();
 
-    // Clicar no filtro "Usuários Desativados"
     const chipDesativados = screen.getByRole('button', { name: /usuários desativados|desativados/i });
     fireEvent.click(chipDesativados);
 
@@ -126,11 +123,9 @@ describe('SearchPage — Busca de Usuários com Filtros e Seções', () => {
       expect(screen.getByText('Carlos Admin Ativo')).toBeInTheDocument();
     });
 
-    // Clicar no card de admin
     fireEvent.click(screen.getByText('Carlos Admin Ativo'));
     expect(mockPush).toHaveBeenCalledWith('/perfil-administrador?id=1');
 
-    // Clicar no card de aluno
     fireEvent.click(screen.getByText('Alice Aluna Ativa'));
     expect(mockPush).toHaveBeenCalledWith('/perfil-aluno?id=3');
   });

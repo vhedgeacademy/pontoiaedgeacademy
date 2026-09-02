@@ -34,7 +34,6 @@ describe('Sidebar Component Access Control', () => {
       render(<Sidebar />);
     });
 
-    // Deve exibir links comuns e administrativos
     expect(screen.getAllByText('Ponto AI').length).toBeGreaterThanOrEqual(1);
     expect(screen.queryByText('Ponto AI Edge Academy')).not.toBeInTheDocument();
     expect(screen.getAllByAltText('Logo Edge').length).toBeGreaterThanOrEqual(1);
@@ -45,12 +44,12 @@ describe('Sidebar Component Access Control', () => {
     expect(screen.getByText('Configurações')).toBeInTheDocument();
     expect(screen.getByText('Sair da Conta')).toBeInTheDocument();
 
-    // Container de navegação deve ter espaçamento compacto e impedir scroll horizontal
+    // Guarda de regressão do layout: espaçamento compacto e sem scroll horizontal
     const navContainer = screen.getByText('Início').closest('div.flex-1');
     expect(navContainer).toHaveClass('space-y-2');
     expect(navContainer).toHaveClass('overflow-x-hidden');
 
-    // NÃO deve exibir links exclusivos de alunos nem validação de ponto legada
+    // Reconhecimento ID é exclusivo de aluno; os demais são páginas removidas que não podem reaparecer
     expect(screen.queryByText('Folha de Ponto')).not.toBeInTheDocument();
     expect(screen.queryByText('Bater Ponto')).not.toBeInTheDocument();
     expect(screen.queryByText('Cadastro Facial')).not.toBeInTheDocument();
@@ -72,13 +71,12 @@ describe('Sidebar Component Access Control', () => {
       render(<Sidebar />);
     });
 
-    // Deve exibir links comuns e de aluno
     expect(screen.getByText('Início')).toBeInTheDocument();
     expect(screen.getByText('Ranking')).toBeInTheDocument();
     expect(screen.getByText('Reconhecimento ID')).toBeInTheDocument();
     expect(screen.getByText('Sair da Conta')).toBeInTheDocument();
 
-    // NÃO deve exibir links administrativos nem páginas legadas
+    // Links administrativos ficam ocultos para aluno; os demais são páginas removidas que não podem reaparecer
     expect(screen.queryByText('Folha de Ponto')).not.toBeInTheDocument();
     expect(screen.queryByText('Bater Ponto')).not.toBeInTheDocument();
     expect(screen.queryByText('Cadastro Facial')).not.toBeInTheDocument();

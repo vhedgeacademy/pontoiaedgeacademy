@@ -25,23 +25,18 @@ describe('Página de Login', () => {
   it('deve renderizar o título, campos de email e senha, link de esqueci a senha e criar conta', () => {
     render(<LoginPage />);
 
-    // Verifica Título
     const titleElement = screen.getByText(/Ponto AI/i);
     expect(titleElement).toBeInTheDocument();
 
-    // Verifica Input de Email pelo placeholder
     const emailInput = screen.getByPlaceholderText(/email/i);
     expect(emailInput).toBeInTheDocument();
 
-    // Verifica Input de Senha
     const passwordInput = document.querySelector('input[type="password"]');
     expect(passwordInput).toBeInTheDocument();
 
-    // Verifica Link "Esqueci a senha"
     const forgotPasswordLink = screen.getByText(/Esqueci a senha/i);
     expect(forgotPasswordLink).toBeInTheDocument();
 
-    // Verifica Seção "Ainda não tem uma conta? Criar conta"
     expect(screen.getByText(/Ainda não tem uma conta\?/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /Criar conta/i })).toBeInTheDocument();
   });

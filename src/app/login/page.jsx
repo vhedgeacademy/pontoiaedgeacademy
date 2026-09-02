@@ -38,11 +38,9 @@ export default function LoginPage() {
       
       const data = await response.json();
       
-      // Salva o token JWT e dados do usuário localmente
       localStorage.setItem('ponto_ai_token', data.access_token);
       localStorage.setItem('ponto_ai_user', JSON.stringify(data.user));
       
-      // Redirecionamento condicional de primeiro acesso / troca obrigatória de senha
       if (data.user && data.user.must_change_password) {
         router.push('/redefinir-senha?first_access=true');
         return;
@@ -68,14 +66,12 @@ export default function LoginPage() {
       
       <div className="w-full max-w-md p-6 sm:p-8 bg-white border border-gray-200 rounded-2xl shadow-sm">
         
-        {/* Header */}
         <div className="text-center mb-8 sm:mb-10">
           <h1 className="text-2xl sm:text-3xl font-bold text-[#4493AC] mb-2">
             Ponto AI
           </h1>
         </div>
 
-        {/* Success Banner */}
         {successMessage && (
           <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg flex items-start">
             <CheckCircle className="w-5 h-5 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
@@ -83,7 +79,6 @@ export default function LoginPage() {
           </div>
         )}
 
-        {/* Error Banner */}
         {errorMessage && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start">
             <AlertCircle className="w-5 h-5 text-red-500 mt-0.5 mr-3 flex-shrink-0" />
@@ -91,10 +86,8 @@ export default function LoginPage() {
           </div>
         )}
 
-        {/* Form */}
         <form className="space-y-6" onSubmit={handleSubmit}>
-          
-          {/* Email Input */}
+
           <div className="space-y-1">
             <label className="block text-sm font-medium text-black" htmlFor="email">
               E-mail corporativo
@@ -110,7 +103,6 @@ export default function LoginPage() {
             />
           </div>
           
-          {/* Password Input */}
           <div className="space-y-1">
             <div className="flex items-center justify-between">
               <label className="block text-sm font-medium text-black" htmlFor="password">
@@ -144,7 +136,6 @@ export default function LoginPage() {
             </div>
           </div>
 
-          {/* Submit Button */}
           <div className="flex justify-center pt-6">
             <button
               type="submit"
@@ -155,7 +146,6 @@ export default function LoginPage() {
             </button>
           </div>
 
-          {/* Create Account Section */}
           <div className="text-center pt-4 border-t border-gray-100">
             <p className="text-sm text-gray-600">
               Ainda não tem uma conta?{' '}
@@ -175,7 +165,6 @@ export default function LoginPage() {
         </form>
       </div>
 
-      {/* Modal de Auto-Cadastro de Estudante */}
       <CriarContaModal
         isOpen={isRegisterModalOpen}
         onClose={() => setIsRegisterModalOpen(false)}

@@ -52,7 +52,7 @@ const ManualPontoAdminModal = ({ item, onClose, onStatusChange, loadingAction })
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in"
     >
       <div className="bg-white w-full max-w-lg rounded-3xl shadow-2xl border border-gray-100 overflow-hidden relative max-h-[90vh] flex flex-col">
-        {/* Header */}
+        {/* Cabeçalho */}
         <div className="flex items-center justify-between px-6 py-5 border-b border-gray-100 bg-gray-50 shrink-0">
           <div className="flex items-center gap-3">
             <span
@@ -77,9 +77,9 @@ const ManualPontoAdminModal = ({ item, onClose, onStatusChange, loadingAction })
           </button>
         </div>
 
-        {/* Content */}
+        {/* Conteúdo */}
         <div className="p-6 space-y-6 overflow-y-auto">
-          {/* User Info */}
+          {/* Dados do usuário */}
           <div className="flex items-center gap-4 p-4 bg-[#F4F9FB] rounded-2xl border border-[#D4E8ED]">
             <UserAvatar
               src={fotoPerfil}
@@ -101,7 +101,7 @@ const ManualPontoAdminModal = ({ item, onClose, onStatusChange, loadingAction })
             </div>
           </div>
 
-          {/* Details Grid */}
+          {/* Grade de detalhes */}
           <div className="grid grid-cols-2 gap-3">
             <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
               <Clock className="w-5 h-5 text-[#4493AC] shrink-0" />
@@ -141,7 +141,7 @@ const ManualPontoAdminModal = ({ item, onClose, onStatusChange, loadingAction })
             </div>
           </div>
 
-          {/* Photo of the Intelbras terminal */}
+          {/* Foto do terminal Intelbras enviada pelo aluno */}
           {fotoExibicao && (
             <div className="space-y-2">
               <p className="text-xs font-bold uppercase tracking-wider text-gray-500">
@@ -158,7 +158,7 @@ const ManualPontoAdminModal = ({ item, onClose, onStatusChange, loadingAction })
           )}
         </div>
 
-        {/* Footer com Botões de Transição de Status */}
+        {/* Rodapé com botões de transição de status */}
         <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex flex-wrap items-center justify-between gap-3 shrink-0">
           <button
             onClick={onClose}

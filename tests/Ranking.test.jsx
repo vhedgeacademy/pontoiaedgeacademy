@@ -111,7 +111,6 @@ describe('Ranking Page Component', () => {
       );
     });
 
-    // Clica na aba Semanal
     const semanalBtn = screen.getByRole('button', { name: /Semanal/i });
     fireEvent.click(semanalBtn);
 
@@ -122,7 +121,6 @@ describe('Ranking Page Component', () => {
       );
     });
 
-    // Clica na aba Mensal
     const mensalBtn = screen.getByRole('button', { name: /Mensal/i });
     fireEvent.click(mensalBtn);
 

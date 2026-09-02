@@ -25,7 +25,6 @@ const Configuracoes = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-4">
-            {/* Coluna 1: Turmas */}
             <div className="w-full">
               <ConfigSection 
                 title="Turmas" 
@@ -36,7 +35,6 @@ const Configuracoes = () => {
               />
             </div>
 
-            {/* Coluna 2: Cargos */}
             <div className="w-full">
               <ConfigSection 
                 title="Cargos" 
@@ -47,7 +45,6 @@ const Configuracoes = () => {
               />
             </div>
 
-            {/* Coluna 3: Cursos */}
             <div className="w-full md:col-span-2 lg:col-span-1">
               <ConfigSection 
                 title="Cursos" 

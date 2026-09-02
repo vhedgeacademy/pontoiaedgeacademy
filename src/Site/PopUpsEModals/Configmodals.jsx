@@ -88,11 +88,9 @@ export const EditarItemModal = ({ isOpen, onClose, onConfirm, nomeAtual, tipoIte
   const [novoNome, setNovoNome] = useState(nomeAtual ?? '');
   const [alunosGlobais, setAlunosGlobais] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  
-  // As duas listas que compõem o estado do modal
+
   const [vinculadosIds, setVinculadosIds] = useState([]);
 
-  // Fetch inicial
   React.useEffect(() => {
     if (isOpen && entityId) {
       setNovoNome(nomeAtual ?? '');
@@ -107,8 +105,7 @@ export const EditarItemModal = ({ isOpen, onClose, onConfirm, nomeAtual, tipoIte
           if (res.ok) {
             const data = await res.json();
             setAlunosGlobais(data);
-            
-            // Popula os IDs vinculados
+
             const initiallyVinculados = data
               .filter(a => a.student_profile?.[`${tipoItem}_id`] === entityId)
               .map(a => a.id);
@@ -135,17 +132,14 @@ export const EditarItemModal = ({ isOpen, onClose, onConfirm, nomeAtual, tipoIte
   const handleAdd = (alunoId) => setVinculadosIds([...vinculadosIds, alunoId]);
   const handleRemove = (alunoId) => setVinculadosIds(vinculadosIds.filter(id => id !== alunoId));
 
-  // Computa listas
   const vinculados = alunosGlobais.filter(a => vinculadosIds.includes(a.id));
-  
-  // Alunos disponiveis são os que: não estão vinculados A NADA, OU estão vinculados mas foram desvinculados no modal
-  // Simplificação: apenas permitimos vincular quem tem o campo null (ou seja, não pertence a nenhuma entidade do tipo)
-  // Ou que estava vinculado à entidade original e não está mais.
+
+  // Disponíveis para vincular: alunos sem entidade deste tipo, ou que pertenciam
+  // a esta entidade e foram desvinculados no modal (podem ser readicionados).
+  // Alunos vinculados a OUTRA entidade do mesmo tipo ficam de fora de propósito.
   const disponiveis = alunosGlobais.filter(a => {
     if (vinculadosIds.includes(a.id)) return false;
-    // Se o aluno pertence atualmente à entidade, mas não está nos vinculadosIds, ele está disponivel (foi removido no popup e pode ser readicionado)
     if (a.student_profile?.[`${tipoItem}_id`] === entityId) return true;
-    // Se o aluno não tem essa entidade, está disponivel
     return a.student_profile?.[`${tipoItem}_id`] === null || a.student_profile?.[`${tipoItem}_id`] === undefined;
   });
 

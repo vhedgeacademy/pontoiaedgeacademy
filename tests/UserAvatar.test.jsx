@@ -22,7 +22,6 @@ describe('UserAvatar Component', () => {
     const img = screen.getByRole('img');
     expect(img).toBeInTheDocument();
 
-    // Simula erro de carregamento da imagem (ex: 404)
     fireEvent.error(img);
 
     expect(screen.queryByRole('img')).not.toBeInTheDocument();

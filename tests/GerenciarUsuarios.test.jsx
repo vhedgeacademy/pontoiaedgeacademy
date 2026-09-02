@@ -134,11 +134,10 @@ describe('GerenciarUsuariosPage — Listagem, Modal e Regras de Deleção', () =
       expect(screen.getByText('Aluno Ativo Sem Login')).toBeInTheDocument();
     });
 
-    // 1. Na aba de usuários ativos, o botão de deletar NÃO deve existir
+    // A listagem abre na aba de ativos, onde não há botão de deletar
     expect(screen.queryByTestId('delete-user-1')).not.toBeInTheDocument();
     expect(screen.queryByTestId('delete-user-2')).not.toBeInTheDocument();
 
-    // 2. Alternar para a aba de usuários desativados
     const inactiveTabBtn = screen.getByRole('button', { name: /usuários desativados/i });
     await act(async () => {
       fireEvent.click(inactiveTabBtn);
@@ -162,7 +161,6 @@ describe('GerenciarUsuariosPage — Listagem, Modal e Regras de Deleção', () =
       expect(screen.getByText('Admin Ativo com Login')).toBeInTheDocument();
     });
 
-    // Clicar na aba de desativados
     const inactiveTabBtn = screen.getByRole('button', { name: /usuários desativados/i });
     await act(async () => {
       fireEvent.click(inactiveTabBtn);

@@ -75,7 +75,6 @@ export default function EsqueciSenhaPage() {
     <div className="min-h-screen flex items-center justify-center bg-gray-50 font-sans p-4 sm:p-6">
       <div className="w-full max-w-md p-6 sm:p-8 bg-white border border-gray-200 rounded-2xl shadow-sm">
         
-        {/* Header */}
         <div className="text-center mb-8 flex flex-col items-center justify-center">
           <div className="flex justify-center mb-3">
             <div className="p-3 bg-blue-50 text-[#4493AC] rounded-full">
@@ -91,7 +90,6 @@ export default function EsqueciSenhaPage() {
           <p className="text-sm text-gray-500">Recuperação de Senha</p>
         </div>
 
-        {/* Message Banner */}
         {message && (
           <div className={`mb-6 p-4 border rounded-lg flex items-start ${isError ? 'bg-red-50 border-red-200' : 'bg-green-50 border-green-200'}`}>
             {isError ? (
@@ -103,7 +101,6 @@ export default function EsqueciSenhaPage() {
           </div>
         )}
 
-        {/* Form */}
         <form className="space-y-5" onSubmit={handleSubmit}>
           
           <div className="space-y-1">
@@ -187,7 +184,6 @@ export default function EsqueciSenhaPage() {
             </div>
           </div>
           
-          {/* Submit Button */}
           <div className="flex justify-center pt-3">
             <button
               type="submit"
