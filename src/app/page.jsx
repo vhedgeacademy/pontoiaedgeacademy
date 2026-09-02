@@ -170,8 +170,7 @@ const MonitoramentoAoVivo = () => {
           const ev = JSON.parse(msg.data);
           if (
             ev.type === 'recognition' ||
-            ev.type === 'manual_ponto_created' ||
-            ev.type === 'manual_ponto_updated'
+            ev.type === 'ponto_registrado'
           ) {
             scheduleDebouncedRefresh();
           }
