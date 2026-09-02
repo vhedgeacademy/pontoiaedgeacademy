@@ -1,8 +1,7 @@
-'use client';
-
 import React, { useEffect, useCallback } from 'react';
-import { X, Clock, Calendar, Camera, User } from 'lucide-react';
+import { X, Clock, Calendar, Camera, MapPin } from 'lucide-react';
 import UserAvatar from '@/components/UserAvatar';
+import { getTerminalImage } from '@/config/terminals';
 
 const PontoDetailModal = ({ ponto, onClose }) => {
   const handleKeyDown = useCallback((e) => {
@@ -27,6 +26,12 @@ const PontoDetailModal = ({ ponto, onClose }) => {
         ? ponto.foto_base64
         : `data:image/jpeg;base64,${ponto.foto_base64}`
       : null;
+
+  // Foto do terminal físico correspondente à câmera onde o ponto foi registrado
+  const fotoTerminal = getTerminalImage(ponto.camera_id);
+
+  // Imagem para exibição: prioriza snapshot do Facedoor, ou foto do dispositivo físico
+  const imagemExibicao = fotoFacedoor || fotoTerminal;
 
   // Foto de perfil exclusiva para o Avatar do usuário
   const fotoPerfil = ponto.photo_url || ponto.foto || null;
@@ -111,25 +116,46 @@ const PontoDetailModal = ({ ponto, onClose }) => {
 
           {/* Prévia da foto do Facedoor / Terminal Facial */}
           <div className="space-y-2">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              Foto do Reconhecimento / Registro
-            </p>
-            {fotoFacedoor ? (
-              <div className="w-full h-56 bg-slate-950 rounded-2xl overflow-hidden flex items-center justify-center border border-gray-200 shadow-inner">
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                {fotoFacedoor ? 'Foto do Reconhecimento Facial' : 'Terminal de Registro (Dispositivo Físico)'}
+              </p>
+              {fotoTerminal && !fotoFacedoor && (
+                <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                  Terminal Autenticado
+                </span>
+              )}
+            </div>
+
+            {imagemExibicao ? (
+              <div className="relative w-full h-56 bg-slate-950 rounded-2xl overflow-hidden flex items-center justify-center border border-gray-200 shadow-inner group">
                 <img
-                  src={fotoFacedoor}
-                  alt="Foto do Reconhecimento Facial (Facedoor)"
-                  className="max-h-full max-w-full object-contain"
+                  src={imagemExibicao}
+                  alt={
+                    fotoFacedoor
+                      ? 'Foto do Reconhecimento Facial (Facedoor)'
+                      : `Terminal Facial ${ponto.camera_id}`
+                  }
+                  className="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105"
                 />
+                <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-3 pt-6 flex items-center justify-between text-white text-xs">
+                  <div className="flex items-center gap-1.5 font-medium">
+                    <MapPin className="w-3.5 h-3.5 text-[#4493AC]" />
+                    <span>{ponto.camera_id || 'Terminal Facial'}</span>
+                  </div>
+                  <span className="text-[11px] text-gray-300">
+                    {fotoFacedoor ? 'Captura transmitida' : 'Dispositivo cadastrado'}
+                  </span>
+                </div>
               </div>
             ) : (
               <div className="w-full h-32 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center text-gray-400 gap-1.5 p-4 text-center">
                 <Camera className="w-6 h-6 text-gray-300" />
                 <span className="text-xs font-medium text-gray-500">
-                  Nenhuma captura facial transmitida pelo terminal
+                  Nenhuma imagem disponível para este terminal
                 </span>
                 <span className="text-[11px] text-gray-400">
-                  O ponto foi autenticado via ID no terminal facial.
+                  O ponto foi autenticado via ID no terminal {ponto.camera_id || 'facial'}.
                 </span>
               </div>
             )}

@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import PontoDetailModal from '@/components/ComponentesDasPaginas/Home/PontoDetailModal';
@@ -27,7 +27,7 @@ describe('PontoDetailModal - Exibição de foto do Facedoor vs Perfil', () => {
 
     // Verifica textos do modal
     expect(screen.getByText('Victor Hugo Silva Ângelo')).toBeInTheDocument();
-    expect(screen.getByText('Saída Pista de Atletismo')).toBeInTheDocument();
+    expect(screen.getAllByText('Saída Pista de Atletismo').length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText('17:46')).toBeInTheDocument();
     expect(screen.getByText('2026-09-01')).toBeInTheDocument();
 
@@ -43,7 +43,7 @@ describe('PontoDetailModal - Exibição de foto do Facedoor vs Perfil', () => {
     expect(avatarImg.src).toContain('https://example.com/profile_image.jpg');
   });
 
-  test('exibe aviso de ausência de captura facial quando foto_base64 for nulo e não duplica a foto de perfil', () => {
+  test('exibe imagem do terminal físico quando foto_base64 for nulo e o terminal for reconhecido', () => {
     const ponto = {
       id: 2,
       user_id: 3,
@@ -58,14 +58,33 @@ describe('PontoDetailModal - Exibição de foto do Facedoor vs Perfil', () => {
 
     render(<PontoDetailModal ponto={ponto} onClose={mockOnClose} />);
 
-    // Não deve renderizar a imagem de reconhecimento com a foto de perfil
-    expect(screen.queryByAltText(/Foto do Reconhecimento Facial/i)).not.toBeInTheDocument();
-    expect(screen.getByText(/Nenhuma captura facial/i)).toBeInTheDocument();
+    // Deve renderizar a foto do terminal físico correspondente
+    const terminalImg = screen.getByAltText(/Terminal Facial Entrada Academy/i);
+    expect(terminalImg).toBeInTheDocument();
+    expect(terminalImg.src).toContain('entrada-academy.jpg');
+    expect(screen.getByText('Terminal Autenticado')).toBeInTheDocument();
 
     // O avatar ainda deve exibir a foto de perfil
     const avatarImg = screen.getByAltText('Aluno Sem Captura');
     expect(avatarImg).toBeInTheDocument();
     expect(avatarImg.src).toContain('https://example.com/profile_only.jpg');
+  });
+
+  test('exibe aviso de ausência de imagem quando foto_base64 for nulo e o terminal for desconhecido', () => {
+    const ponto = {
+      id: 3,
+      user_id: 4,
+      nome: 'Aluno Sem Terminal',
+      camera_id: 'Camera Desconhecida Sem Foto',
+      event_type: 'Entrada',
+      horario: '09:00',
+      data: '2026-09-01',
+      foto_base64: null,
+    };
+
+    render(<PontoDetailModal ponto={ponto} onClose={mockOnClose} />);
+
+    expect(screen.getByText(/Nenhuma imagem disponível para este terminal/i)).toBeInTheDocument();
   });
 
   test('fecha o modal ao pressionar tecla Escape ou clicar no botão fechar', () => {
