@@ -43,7 +43,7 @@ describe('PontoDetailModal - Exibição de foto do Facedoor vs Perfil', () => {
     expect(avatarImg.src).toContain('https://example.com/profile_image.jpg');
   });
 
-  test('exibe imagem do terminal físico quando foto_base64 for nulo e o terminal for reconhecido', () => {
+  test('exibe imagem do terminal físico quando foto_base64 e fotoPerfil forem nulos e o terminal for reconhecido', () => {
     const ponto = {
       id: 2,
       user_id: 3,
@@ -52,7 +52,7 @@ describe('PontoDetailModal - Exibição de foto do Facedoor vs Perfil', () => {
       event_type: 'Entrada',
       horario: '08:00',
       data: '2026-09-01',
-      photo_url: 'https://example.com/profile_only.jpg',
+      photo_url: null,
       foto_base64: null,
     };
 
@@ -63,11 +63,25 @@ describe('PontoDetailModal - Exibição de foto do Facedoor vs Perfil', () => {
     expect(terminalImg).toBeInTheDocument();
     expect(terminalImg.src).toContain('entrada-academy.jpg');
     expect(screen.getByText('Terminal Autenticado')).toBeInTheDocument();
+  });
 
-    // O avatar ainda deve exibir a foto de perfil
-    const avatarImg = screen.getByAltText('Aluno Sem Captura');
-    expect(avatarImg).toBeInTheDocument();
-    expect(avatarImg.src).toContain('https://example.com/profile_only.jpg');
+  test('exibe foto facial do perfil do aluno quando foto_base64 for nulo e photo_url estiver presente', () => {
+    const ponto = {
+      id: 2,
+      user_id: 3,
+      nome: 'Aluno Com Perfil',
+      camera_id: 'Entrada Academy',
+      event_type: 'Entrada',
+      horario: '08:00',
+      data: '2026-09-01',
+      photo_url: 'https://example.com/profile_only.jpg',
+      foto_base64: null,
+    };
+
+    render(<PontoDetailModal ponto={ponto} onClose={mockOnClose} />);
+
+    expect(screen.getByText(/Foto do Aluno \(Identificação Biométrica\)/i)).toBeInTheDocument();
+    expect(screen.getByText(/Biometria Cadastrada/i)).toBeInTheDocument();
   });
 
   test('exibe aviso de ausência de imagem quando foto_base64 for nulo e o terminal for desconhecido', () => {

@@ -20,19 +20,19 @@ const PontoDetailModal = ({ ponto, onClose }) => {
 
   const isEntrada = ponto.event_type === 'Entrada';
 
-  // Foto do Facedoor / Snapshot do Ponto capturada e armazenada no banco
+  // 1. Snapshot do ponto capturado no banco de dados
   const rawPontoFoto = ponto.foto_base64 || ponto.imagem || ponto.foto || ponto.image_base64 || null;
   const fotoFacedoor = resolvePontoImage(rawPontoFoto);
 
-  // Foto do terminal físico correspondente à câmera onde o ponto foi registrado
-  const fotoTerminal = getTerminalImage(ponto.camera_id);
-
-  // Imagem para exibição: prioriza snapshot do Ponto do banco de dados, ou foto do dispositivo físico
-  const imagemExibicao = fotoFacedoor || fotoTerminal;
-
-  // Foto de perfil exclusiva para o Avatar do usuário
+  // 2. Foto de perfil do usuário (aluno)
   const rawPerfilFoto = ponto.photo_url || ponto.profile_image || null;
   const fotoPerfil = resolvePontoImage(rawPerfilFoto) || rawPerfilFoto;
+
+  // 3. Foto do terminal físico
+  const fotoTerminal = getTerminalImage(ponto.camera_id);
+
+  // Imagem para exibição: prioriza snapshot do ponto, foto do aluno, ou dispositivo físico
+  const imagemExibicao = fotoFacedoor || fotoPerfil || fotoTerminal;
 
   return (
     <div
@@ -112,17 +112,29 @@ const PontoDetailModal = ({ ponto, onClose }) => {
             </div>
           </div>
 
-          {/* Prévia da foto do Facedoor / Terminal Facial */}
+          {/* Prévia da foto do ponto / Foto do Aluno / Terminal */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                {fotoFacedoor ? 'Foto do Reconhecimento Facial' : 'Terminal de Registro (Dispositivo Físico)'}
+                {fotoFacedoor
+                  ? 'Foto do Reconhecimento Facial (Captura do Ponto)'
+                  : fotoPerfil
+                  ? 'Foto do Aluno (Identificação Biométrica)'
+                  : 'Terminal de Registro (Dispositivo Físico)'}
               </p>
-              {fotoTerminal && !fotoFacedoor && (
+              {fotoFacedoor ? (
+                <span className="text-[11px] font-semibold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
+                  Captura Transmitida
+                </span>
+              ) : fotoPerfil ? (
+                <span className="text-[11px] font-semibold text-purple-700 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded-full">
+                  Biometria Cadastrada
+                </span>
+              ) : fotoTerminal ? (
                 <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
                   Terminal Autenticado
                 </span>
-              )}
+              ) : null}
             </div>
 
             {imagemExibicao ? (
