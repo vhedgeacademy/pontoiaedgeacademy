@@ -234,11 +234,9 @@ const CalendarioPresencaAluno = ({ userId, alunoInfo }) => {
                   const isEntrada = ev.event_type === 'Entrada';
                   const rawPontoImage = ev.foto_base64 || ev.imagem || ev.foto || ev.image_base64 || null;
                   const pontoImage = resolvePontoImage(rawPontoImage, token);
-                  const userProfileImage = resolvePhotoUrl(alunoInfo?.rawUser?.profile_image || alunoInfo?.foto || null, token);
                   const terminalImage = getTerminalImage(ev.camera_id);
-                  const displayImage = pontoImage || userProfileImage || terminalImage;
+                  const displayImage = pontoImage || terminalImage;
                   const hasDatabasePhoto = Boolean(pontoImage);
-                  const hasUserPhoto = Boolean(userProfileImage);
 
                   return (
                     <div
@@ -257,12 +255,12 @@ const CalendarioPresencaAluno = ({ userId, alunoInfo }) => {
                     >
                       {/* Miniatura da Imagem e Informações do Registro */}
                       <div className="flex items-center gap-4 min-w-0 pr-2">
-                        {/* Imagem do Ponto / Aluno / Terminal */}
+                        {/* Imagem do Ponto / Terminal */}
                         <div className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-2xl overflow-hidden bg-slate-900 border border-gray-200 shrink-0 shadow-sm group-hover:scale-105 transition-transform duration-200">
                           {displayImage ? (
                             <img
                               src={displayImage}
-                              alt={hasDatabasePhoto ? `Foto do Ponto ${ev.event_type}` : hasUserPhoto ? `Foto de ${alunoInfo?.nome || 'Aluno'}` : `Terminal ${ev.camera_id}`}
+                              alt={hasDatabasePhoto ? `Foto do Ponto ${ev.event_type}` : `Terminal ${ev.camera_id}`}
                               className="w-full h-full object-cover"
                             />
                           ) : (
@@ -293,11 +291,6 @@ const CalendarioPresencaAluno = ({ userId, alunoInfo }) => {
                               <span className="text-[11px] font-semibold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-md hidden xs:inline-flex items-center gap-1">
                                 <Camera className="w-3 h-3" />
                                 <span>Foto Facial</span>
-                              </span>
-                            ) : hasUserPhoto ? (
-                              <span className="text-[11px] font-semibold text-purple-700 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded-md hidden xs:inline-flex items-center gap-1">
-                                <Camera className="w-3 h-3" />
-                                <span>Biometria</span>
                               </span>
                             ) : terminalImage ? (
                               <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md hidden xs:inline-flex">

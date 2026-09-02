@@ -20,19 +20,19 @@ const PontoDetailModal = ({ ponto, onClose }) => {
 
   const isEntrada = ponto.event_type === 'Entrada';
 
-  // 1. Snapshot do ponto capturado no banco de dados
+  // 1. Snapshot da captura facial do ponto no banco de dados (tabela pontos)
   const rawPontoFoto = ponto.foto_base64 || ponto.imagem || ponto.foto || ponto.image_base64 || null;
   const fotoFacedoor = resolvePontoImage(rawPontoFoto);
 
-  // 2. Foto de perfil do usuário (aluno)
-  const rawPerfilFoto = ponto.photo_url || ponto.profile_image || null;
-  const fotoPerfil = resolvePontoImage(rawPerfilFoto) || rawPerfilFoto;
-
-  // 3. Foto do terminal físico
+  // 2. Foto do terminal físico correspondente à câmera onde o ponto foi registrado
   const fotoTerminal = getTerminalImage(ponto.camera_id);
 
-  // Imagem para exibição: prioriza snapshot do ponto, foto do aluno, ou dispositivo físico
-  const imagemExibicao = fotoFacedoor || fotoPerfil || fotoTerminal;
+  // Imagem para exibição central: prioriza snapshot do Ponto da tabela pontos, ou foto do dispositivo físico
+  const imagemExibicao = fotoFacedoor || fotoTerminal;
+
+  // Foto de perfil exclusiva para o Avatar superior do usuário
+  const rawPerfilFoto = ponto.photo_url || ponto.profile_image || null;
+  const fotoPerfil = resolvePontoImage(rawPerfilFoto) || rawPerfilFoto;
 
   return (
     <div
@@ -112,23 +112,17 @@ const PontoDetailModal = ({ ponto, onClose }) => {
             </div>
           </div>
 
-          {/* Prévia da foto do ponto / Foto do Aluno / Terminal */}
+          {/* Prévia da foto do Facedoor / Terminal Facial */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <p className="text-xs font-semibold text-gray-500 uppercase tracking-wider">
                 {fotoFacedoor
                   ? 'Foto do Reconhecimento Facial (Captura do Ponto)'
-                  : fotoPerfil
-                  ? 'Foto do Aluno (Identificação Biométrica)'
                   : 'Terminal de Registro (Dispositivo Físico)'}
               </p>
               {fotoFacedoor ? (
                 <span className="text-[11px] font-semibold text-blue-700 bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full">
                   Captura Transmitida
-                </span>
-              ) : fotoPerfil ? (
-                <span className="text-[11px] font-semibold text-purple-700 bg-purple-50 border border-purple-200 px-2 py-0.5 rounded-full">
-                  Biometria Cadastrada
                 </span>
               ) : fotoTerminal ? (
                 <span className="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
@@ -154,7 +148,7 @@ const PontoDetailModal = ({ ponto, onClose }) => {
                     <span>{ponto.camera_id || 'Terminal Facial'}</span>
                   </div>
                   <span className="text-[11px] text-gray-300">
-                    {fotoFacedoor ? 'Captura transmitida' : 'Dispositivo cadastrado'}
+                    {fotoFacedoor ? 'Captura da tabela pontos' : 'Dispositivo cadastrado'}
                   </span>
                 </div>
               </div>
