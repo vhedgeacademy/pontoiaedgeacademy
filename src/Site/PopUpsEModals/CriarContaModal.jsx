@@ -194,20 +194,20 @@ const CriarContaModal = ({ isOpen, onClose, onUserCreated }) => {
             {/* Senha */}
             <div className="flex flex-col gap-1.5 w-full">
               <label className="text-sm font-medium text-gray-700">Senha</label>
-              <div className="relative flex items-center w-full border border-gray-300 rounded-xl focus-within:border-[#4493AC] focus-within:ring-1 focus-within:ring-[#4493AC] transition-colors">
+              <div className="flex items-center w-full px-3 py-2 border border-gray-300 rounded-xl focus-within:border-[#4493AC] focus-within:ring-1 focus-within:ring-[#4493AC] transition-colors bg-white">
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   placeholder="Crie sua senha de acesso"
                   required
-                  className="w-full pl-4 pr-10 py-2.5 bg-transparent text-black text-sm focus:outline-none rounded-xl"
+                  className="w-full min-w-0 bg-transparent text-black text-sm focus:outline-none border-0 p-0 shadow-none ring-0"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   aria-label={showPassword ? "Ocultar senha" : "Exibir senha"}
-                  className="absolute right-0 inset-y-0 px-3 flex items-center justify-center text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer"
+                  className="ml-2 flex items-center justify-center text-gray-400 hover:text-gray-600 focus:outline-none bg-transparent shrink-0 cursor-pointer"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -217,20 +217,20 @@ const CriarContaModal = ({ isOpen, onClose, onUserCreated }) => {
             {/* Confirmar Senha */}
             <div className="flex flex-col gap-1.5 w-full">
               <label className="text-sm font-medium text-gray-700">Confirmar Senha</label>
-              <div className="relative flex items-center w-full border border-gray-300 rounded-xl focus-within:border-[#4493AC] focus-within:ring-1 focus-within:ring-[#4493AC] transition-colors">
+              <div className="flex items-center w-full px-3 py-2 border border-gray-300 rounded-xl focus-within:border-[#4493AC] focus-within:ring-1 focus-within:ring-[#4493AC] transition-colors bg-white">
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
                   value={formData.confirmPassword}
                   onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                   placeholder="Confirme sua senha de acesso"
                   required
-                  className="w-full pl-4 pr-10 py-2.5 bg-transparent text-black text-sm focus:outline-none rounded-xl"
+                  className="w-full min-w-0 bg-transparent text-black text-sm focus:outline-none border-0 p-0 shadow-none ring-0"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   aria-label={showConfirmPassword ? "Ocultar confirmação de senha" : "Exibir confirmação de senha"}
-                  className="absolute right-0 inset-y-0 px-3 flex items-center justify-center text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer"
+                  className="ml-2 flex items-center justify-center text-gray-400 hover:text-gray-600 focus:outline-none bg-transparent shrink-0 cursor-pointer"
                 >
                   {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>

@@ -111,6 +111,10 @@ const CalendarioPresencaAluno = ({ userId, alunoInfo }) => {
 
   const token = typeof window !== 'undefined' ? localStorage.getItem('ponto_ai_token') : '';
 
+  const events = dateRecord?.events || [];
+  const primeiraEntrada = dateRecord?.primeira_entrada || (events.length > 0 ? formatTime(events[0].timestamp) : '--:--');
+  const ultimaSaida = dateRecord?.ultima_saida || (events.length > 1 ? formatTime(events[events.length - 1].timestamp) : (events.length === 1 && events[0].event_type === 'Saída' ? formatTime(events[0].timestamp) : '--:--'));
+
   return (
     <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
@@ -172,7 +176,7 @@ const CalendarioPresencaAluno = ({ userId, alunoInfo }) => {
               <div>
                 <p className="text-xs font-bold uppercase text-emerald-800 tracking-wider">Primeira Entrada</p>
                 <p className="text-2xl font-black text-emerald-950 mt-0.5">
-                  {dateRecord?.primeira_entrada || '--:--'}
+                  {primeiraEntrada}
                 </p>
               </div>
             </div>
@@ -185,7 +189,7 @@ const CalendarioPresencaAluno = ({ userId, alunoInfo }) => {
               <div>
                 <p className="text-xs font-bold uppercase text-amber-800 tracking-wider">Última Saída</p>
                 <p className="text-2xl font-black text-amber-950 mt-0.5">
-                  {dateRecord?.ultima_saida || '--:--'}
+                  {ultimaSaida}
                 </p>
               </div>
             </div>

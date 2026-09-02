@@ -112,7 +112,7 @@ export default function LoginPage() {
                 Esqueci a senha
               </Link>
             </div>
-            <div className="relative w-full">
+            <div className="flex items-center w-full h-[42px] px-3 bg-white border border-gray-300 rounded-[5px] focus-within:border-[#4493AC] focus-within:ring-1 focus-within:ring-[#4493AC] transition-colors">
               <input
                 id="password"
                 type={showPassword ? "text" : "password"}
@@ -120,18 +120,18 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full h-[42px] pl-3 pr-10 bg-white border border-gray-300 rounded-[5px] text-black focus:outline-none focus:border-[#4493AC] focus:ring-1 focus:ring-[#4493AC] transition-colors text-sm"
+                className="w-full min-w-0 bg-transparent text-black text-sm focus:outline-none border-0 p-0 shadow-none ring-0"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 aria-label={showPassword ? "Ocultar senha" : "Exibir senha"}
-                className="absolute right-0 inset-y-0 px-3 flex items-center justify-center text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer"
+                className="ml-2 flex items-center justify-center text-gray-400 hover:text-gray-600 focus:outline-none bg-transparent shrink-0 cursor-pointer"
               >
                 {showPassword ? (
-                  <EyeOff className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <EyeOff className="w-5 h-5" />
                 ) : (
-                  <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <Eye className="w-5 h-5" />
                 )}
               </button>
             </div>
