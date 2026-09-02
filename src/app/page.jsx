@@ -8,6 +8,7 @@ import HorasSection from '@/components/ComponentesDasPaginas/Home/HorasSection';
 import UltimasEntradas from '@/components/ComponentesDasPaginas/Home/UltimasEntradas';
 import UltimasSaidas from '@/components/ComponentesDasPaginas/Home/UltimasSaidas';
 import PontoDetailModal from '@/components/ComponentesDasPaginas/Home/PontoDetailModal';
+import { AlertCircle } from 'lucide-react';
 import { getApiBase } from '@/config/api';
 
 const MonitoramentoAoVivo = () => {
@@ -21,10 +22,40 @@ const MonitoramentoAoVivo = () => {
   const [ultimasEntradas, setUltimasEntradas] = useState([]);
   const [ultimasSaidas, setUltimasSaidas] = useState([]);
   const [selectedPonto, setSelectedPonto] = useState(null);
+  const [isIncompleteProfile, setIsIncompleteProfile] = useState(false);
 
   const apiBase = getApiBase();
   const sseDebounceTimer = useRef(null);
   const isRefreshingRef = useRef(false);
+
+  const checkProfileCompleteness = useCallback(async () => {
+    const token = localStorage.getItem('ponto_ai_token');
+    const userStr = localStorage.getItem('ponto_ai_user');
+    if (!token || !userStr) return;
+
+    try {
+      const parsed = JSON.parse(userStr);
+      if (parsed.admin) {
+        setIsIncompleteProfile(false);
+        return;
+      }
+
+      const res = await fetch(`${apiBase}/users/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const sp = data.student_profile;
+        if (!sp || !sp.matricula || !sp.turma_id || !sp.cargo_id || !sp.trilha) {
+          setIsIncompleteProfile(true);
+        } else {
+          setIsIncompleteProfile(false);
+        }
+      }
+    } catch (e) {
+      console.error('Erro ao verificar completude do perfil:', e);
+    }
+  }, [apiBase]);
 
   // Token rejeitado pelo backend: limpa a sessão e volta pro login
   const forceLogout = useCallback(() => {
@@ -136,12 +167,22 @@ const MonitoramentoAoVivo = () => {
       setIsAuthReady(true);
       if (parsed.admin) {
         refreshAdminFeeds();
+      } else {
+        checkProfileCompleteness();
       }
     } catch (e) {
       console.error('Erro ao processar usuário local:', e);
       forceLogout();
     }
-  }, [forceLogout, refreshAdminFeeds]);
+
+    window.addEventListener('storage', checkProfileCompleteness);
+    window.addEventListener('ponto_ai_profile_updated', checkProfileCompleteness);
+
+    return () => {
+      window.removeEventListener('storage', checkProfileCompleteness);
+      window.removeEventListener('ponto_ai_profile_updated', checkProfileCompleteness);
+    };
+  }, [forceLogout, refreshAdminFeeds, checkProfileCompleteness]);
 
   // Escuta os eventos de reconhecimento via SSE
   useEffect(() => {
@@ -234,7 +275,35 @@ const MonitoramentoAoVivo = () => {
               </div>
             </>
           ) : (
-            <HorasSection userData={userData} />
+            <>
+              {isIncompleteProfile && (
+                <div className="mb-6 p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/90 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-in fade-in duration-300">
+                  <div className="flex items-start gap-3.5">
+                    <div className="p-2.5 bg-amber-100/90 text-amber-700 rounded-2xl shrink-0 mt-0.5 sm:mt-0">
+                      <AlertCircle className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-sm sm:text-base text-amber-900">
+                        Seu cadastro de estudante está incompleto!
+                      </h3>
+                      <p className="text-xs sm:text-sm text-amber-800 mt-0.5 leading-relaxed">
+                        Preencha seus dados de <strong>Matrícula</strong>, <strong>Turma</strong>,{' '}
+                        <strong>Cargo</strong> e <strong>Trilha</strong>. Essas informações são
+                        essenciais para a validação no sistema e para que você consiga utilizar a
+                        recuperação de senha (<strong>Esqueci a Senha</strong>).
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => router.push('/editar-perfil')}
+                    className="px-5 py-2.5 bg-[#4493AC] hover:bg-[#243D6D] text-white text-xs sm:text-sm font-bold rounded-2xl shadow-sm transition-all whitespace-nowrap self-start sm:self-auto cursor-pointer"
+                  >
+                    Completar Cadastro
+                  </button>
+                </div>
+              )}
+              <HorasSection userData={userData} />
+            </>
           )}
 
           {selectedPonto && (
