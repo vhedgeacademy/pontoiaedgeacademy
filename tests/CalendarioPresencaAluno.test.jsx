@@ -59,4 +59,57 @@ describe('CalendarioPresencaAluno component', () => {
       expect(screen.getByText(/Nenhum registro de ponto registrado nesta data/i)).toBeInTheDocument();
     });
   });
+
+  test('abre modal de detalhes do ponto com foto e informações ao clicar em um registro', async () => {
+    const mockAlunoInfo = {
+      nome: 'João Silva',
+      rawUser: { id: 10, profile_image: '/images/profile.jpg' }
+    };
+
+    global.fetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        date: '2026-08-14',
+        primeira_entrada: '08:30',
+        ultima_saida: '17:30',
+        total_dia: '09:00',
+        total_semana: '36:00',
+        events: [
+          {
+            id: 101,
+            camera_id: 'Porta Academy',
+            timestamp: '2026-08-14T08:30:00',
+            event_type: 'Entrada',
+            foto_base64: 'base64samplephoto'
+          }
+        ]
+      }),
+    });
+
+    render(<CalendarioPresencaAluno userId={10} alunoInfo={mockAlunoInfo} />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Porta Academy')).toBeInTheDocument();
+    });
+
+    // Clica no registro de ponto
+    const registroRow = screen.getByTitle(/Clique para visualizar os detalhes e a foto do registro/i);
+    fireEvent.click(registroRow);
+
+    // Modal de detalhes deve ser exibido com os dados completos
+    await waitFor(() => {
+      expect(screen.getByRole('dialog')).toBeInTheDocument();
+      expect(screen.getByText('Detalhes do Registro')).toBeInTheDocument();
+      expect(screen.getByText('João Silva')).toBeInTheDocument();
+      expect(screen.getByAltText(/Foto do Reconhecimento Facial/i)).toBeInTheDocument();
+    });
+
+    // Fecha o modal
+    const closeBtn = screen.getByLabelText(/Fechar/i);
+    fireEvent.click(closeBtn);
+
+    await waitFor(() => {
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    });
+  });
 });

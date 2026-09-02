@@ -1,8 +1,14 @@
-'use client';
-
 import React, { useState, useEffect, useCallback } from 'react';
-import { Calendar as CalendarIcon, Clock, LogIn, LogOut, ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, LogIn, LogOut, ChevronLeft, ChevronRight, AlertCircle, Eye } from 'lucide-react';
 import { getApiBase } from '@/config/api';
+import PontoDetailModal from '@/components/ComponentesDasPaginas/Home/PontoDetailModal';
+
+// Converte photo_url relativo em URL absoluta com token na query
+const resolvePhotoUrl = (path, tk) => {
+  if (!path) return null;
+  const apiBase = getApiBase();
+  return path.startsWith('/') ? `${apiBase}${path}?token=${tk}` : path;
+};
 
 // Serializa a data no fuso local (YYYY-MM-DD). Não usar `toISOString()`:
 // ela devolve UTC e, perto da virada do dia, apontaria o dia errado —
@@ -14,10 +20,11 @@ const toLocalDateString = (date) => {
   return `${ano}-${mes}-${dia}`;
 };
 
-const CalendarioPresencaAluno = ({ userId }) => {
+const CalendarioPresencaAluno = ({ userId, alunoInfo }) => {
   const [selectedDate, setSelectedDate] = useState(() => toLocalDateString(new Date()));
 
   const [dateRecord, setDateRecord] = useState(null);
+  const [selectedPonto, setSelectedPonto] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -76,6 +83,26 @@ const CalendarioPresencaAluno = ({ userId }) => {
     if (!isoString) return '--:--';
     const date = new Date(isoString);
     return date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const handleSelectEvent = (ev) => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('ponto_ai_token') : '';
+    const profileImg = alunoInfo?.rawUser?.profile_image || alunoInfo?.foto || null;
+    const photoUrl = resolvePhotoUrl(profileImg, token);
+
+    setSelectedPonto({
+      id: ev.id,
+      user_id: userId,
+      nome: alunoInfo?.nome || alunoInfo?.name || 'Aluno',
+      photo_url: photoUrl,
+      foto_base64: ev.foto_base64 || null,
+      camera_id: ev.camera_id,
+      horario: formatTime(ev.timestamp),
+      hora: formatTime(ev.timestamp),
+      data: formatDisplayDate(selectedDate),
+      event_type: ev.event_type,
+      origem: ev.origem || 'pipeline',
+    });
   };
 
   return (
@@ -197,18 +224,45 @@ const CalendarioPresencaAluno = ({ userId }) => {
 
             {dateRecord?.events && dateRecord.events.length > 0 ? (
               <div className="divide-y divide-gray-100">
-                {dateRecord.events.map((ev, idx) => (
-                  <div key={ev.id || idx} className="px-6 py-3.5 flex items-center justify-between hover:bg-gray-50/50 transition-colors">
-                    <div className="flex items-center gap-3">
-                      <span className={`w-3 h-3 rounded-full ${ev.event_type === 'Entrada' ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-                      <span className="text-sm font-semibold text-gray-800">{ev.event_type}</span>
+                {dateRecord.events.map((ev, idx) => {
+                  const isEntrada = ev.event_type === 'Entrada';
+                  return (
+                    <div
+                      key={ev.id || idx}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => handleSelectEvent(ev)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          handleSelectEvent(ev);
+                        }
+                      }}
+                      className="px-4 sm:px-6 py-3.5 flex items-center justify-between hover:bg-slate-50 cursor-pointer transition-colors group focus:outline-none focus:bg-slate-100/80"
+                      title="Clique para visualizar os detalhes e a foto do registro"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span
+                          className={`w-3 h-3 rounded-full shrink-0 ${
+                            isEntrada ? 'bg-emerald-500 shadow-sm shadow-emerald-300' : 'bg-amber-500 shadow-sm shadow-amber-300'
+                          }`}
+                        />
+                        <span className="text-sm font-semibold text-gray-800 group-hover:text-[#4493AC] transition-colors">
+                          {ev.event_type}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3 sm:gap-6 text-sm text-gray-500">
+                        <span className="font-mono font-medium text-gray-700">{formatTime(ev.timestamp)}</span>
+                        <span className="text-xs bg-gray-100 px-2.5 py-1 rounded-md text-gray-600 font-medium group-hover:bg-blue-50 group-hover:text-[#4493AC] transition-colors">
+                          {ev.camera_id}
+                        </span>
+                        <div className="text-gray-400 group-hover:text-[#4493AC] transition-colors p-1">
+                          <Eye className="w-4 h-4" />
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-6 text-sm text-gray-500">
-                      <span className="font-mono font-medium text-gray-700">{formatTime(ev.timestamp)}</span>
-                      <span className="text-xs bg-gray-100 px-2 py-0.5 rounded text-gray-600">{ev.camera_id}</span>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div className="py-10 text-center text-gray-400 text-sm">
@@ -217,6 +271,14 @@ const CalendarioPresencaAluno = ({ userId }) => {
             )}
           </div>
         </div>
+      )}
+
+      {/* Modal de Detalhes do Ponto / Foto Facial */}
+      {selectedPonto && (
+        <PontoDetailModal
+          ponto={selectedPonto}
+          onClose={() => setSelectedPonto(null)}
+        />
       )}
     </div>
   );

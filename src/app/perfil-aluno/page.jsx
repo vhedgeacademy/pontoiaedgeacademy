@@ -142,7 +142,7 @@ const PerfilAlunoContent = () => {
 
           <AlunoInfoCard alunoInfo={alunoInfo} onSaved={fetchData} />
 
-          <CalendarioPresencaAluno userId={id} />
+          <CalendarioPresencaAluno userId={id} alunoInfo={alunoInfo} />
         </div>
       </div>
     </div>
